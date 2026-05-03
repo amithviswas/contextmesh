@@ -1,41 +1,43 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { Database, Search, Plug, ArrowRight } from 'lucide-react';
-
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Dashboard — ContextMesh',
-  description: 'Your project context hub. Query, sync, and explore your team\'s shared memory.',
+  description: 'Your project context hub.',
 };
 
 const stats = [
-  { label: 'Context items', value: '0', id: 'stat-context-items' },
-  { label: 'Queries this month', value: '0', id: 'stat-queries' },
-  { label: 'Integrations active', value: '0', id: 'stat-integrations' },
+  { label: 'Context items', value: '0', id: 'stat-context-items', desc: 'indexed so far' },
+  { label: 'Queries', value: '0', id: 'stat-queries', desc: 'this month' },
+  { label: 'Integrations', value: '0', id: 'stat-integrations', desc: 'connected' },
 ];
 
 const quickActions = [
   {
     id: 'action-projects',
     href: '/projects',
-    icon: Database,
+    emoji: '📁',
     title: 'Create a project',
     desc: 'Group your context by team or codebase',
+    tag: 'Phase 2',
   },
   {
     id: 'action-query',
     href: '/query',
-    icon: Search,
+    emoji: '🔍',
     title: 'Query your context',
-    desc: 'Ask anything about your projects in natural language',
+    desc: 'Ask anything in natural language and get sourced answers',
+    tag: 'Phase 3',
   },
   {
     id: 'action-integrations',
     href: '/integrations',
-    icon: Plug,
+    emoji: '🔌',
     title: 'Connect integrations',
-    desc: 'Sync context from GitHub, Slack, Jira, and Linear',
+    desc: 'Auto-sync context from GitHub, Slack, Jira, and Linear',
+    tag: 'Phase 4',
   },
 ];
 
@@ -44,103 +46,113 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const firstName = user.email?.split('@')[0] ?? 'there';
+  const firstName = (user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? 'there')
+    .split(' ')[0];
 
   return (
-    <div className="space-y-10 page-enter">
-      {/* Header */}
+    <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+
+      {/* ── Header ── */}
       <div>
-        <p className="text-[13px] font-[var(--font-mono)] mb-2" style={{ color: 'var(--color-accent-primary)' }}>
-          ContextMesh / Dashboard
+        <p style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'var(--accent)', marginBottom: '10px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+          Overview
         </p>
-        <h1
-          className="text-[36px] font-[var(--font-display)] font-700 mb-2"
-          style={{ color: 'var(--color-text-primary)', letterSpacing: '-0.03em' }}
-        >
-          Welcome back, {firstName}
+        <h1 style={{ fontSize: '30px', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.025em', marginBottom: '6px' }}>
+          Good evening, {firstName} 👋
         </h1>
-        <p className="text-[15px]" style={{ color: 'var(--color-text-secondary)' }}>
-          Your shared memory layer is ready. Start by creating a project.
+        <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+          Your shared memory layer is ready. Start by creating a project below.
         </p>
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4 page-enter page-enter-delay-1" role="list" aria-label="Overview statistics">
+      {/* ── Stats ── */}
+      <div
+        className="page-enter-delay-1"
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}
+        id="stats-grid"
+        role="list"
+        aria-label="Overview statistics"
+      >
         {stats.map((stat) => (
-          <div
-            key={stat.id}
-            id={stat.id}
-            role="listitem"
-            className="card p-5"
-          >
-            <p className="text-[40px] font-[var(--font-display)] font-800 leading-none mb-2" style={{ color: 'var(--color-text-primary)' }}>
+          <div key={stat.id} id={stat.id} role="listitem" className="card" style={{ padding: '20px 24px' }}>
+            <p style={{ fontSize: '38px', fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1, marginBottom: '6px' }}>
               {stat.value}
             </p>
-            <p className="text-[13px]" style={{ color: 'var(--color-text-secondary)' }}>
+            <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '2px' }}>
               {stat.label}
+            </p>
+            <p style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
+              {stat.desc}
             </p>
           </div>
         ))}
       </div>
 
-      {/* Empty state / Quick actions */}
-      <div className="page-enter page-enter-delay-2">
-        <h2
-          className="text-[18px] font-[var(--font-display)] font-600 mb-4"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
+      {/* ── Quick Actions ── */}
+      <div className="page-enter-delay-2">
+        <p style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)', marginBottom: '14px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
           Get started
-        </h2>
-
-        <div className="space-y-2">
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {quickActions.map((action, i) => (
-            <a
+            <Link
               key={action.id}
               id={action.id}
               href={action.href}
-              className="card flex items-center gap-4 p-5 group cursor-pointer transition-all duration-[250ms]"
-              style={{ animationDelay: `${(i + 2) * 50}ms` }}
+              className="card"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                padding: '16px 20px',
+                cursor: 'pointer',
+                textDecoration: 'none',
+              }}
             >
-              <div
-                className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0 transition-all duration-150 group-hover:scale-105"
-                style={{ background: 'var(--color-accent-subtle)', border: '1px solid rgba(0,212,180,0.15)' }}
-              >
-                <action.icon size={18} style={{ color: 'var(--color-accent-primary)' }} />
+              <div style={{
+                width: '40px', height: '40px', borderRadius: '10px', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'var(--accent-subtle)',
+                border: '1px solid var(--accent-border)',
+                fontSize: '18px',
+              }}>
+                {action.emoji}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[14px] font-medium mb-0.5" style={{ color: 'var(--color-text-primary)' }}>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '2px' }}>
                   {action.title}
                 </p>
-                <p className="text-[13px]" style={{ color: 'var(--color-text-secondary)' }}>
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                   {action.desc}
                 </p>
               </div>
-              <ArrowRight
-                size={16}
-                className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-150 -translate-x-1 group-hover:translate-x-0"
-                style={{ color: 'var(--color-accent-primary)' }}
-              />
-            </a>
+              <span className="tag" style={{ flexShrink: 0 }}>{action.tag}</span>
+            </Link>
           ))}
         </div>
       </div>
 
-      {/* Context engine coming notice */}
+      {/* ── Phase notice ── */}
       <div
-        className="page-enter page-enter-delay-3 rounded-[12px] p-5 flex items-start gap-4"
-        style={{ background: 'var(--color-accent-subtle)', border: '1px solid rgba(0,212,180,0.15)' }}
         id="phase-notice"
+        className="page-enter-delay-3"
+        style={{
+          borderRadius: '10px',
+          padding: '16px 20px',
+          background: 'var(--accent-subtle)',
+          border: '1px solid var(--accent-border)',
+          display: 'flex',
+          gap: '12px',
+          alignItems: 'flex-start',
+        }}
       >
-        <div
-          className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 teal-pulse"
-          style={{ background: 'var(--color-accent-primary)' }}
-        />
+        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent)', flexShrink: 0, marginTop: '6px' }} className="teal-pulse" />
         <div>
-          <p className="text-[13px] font-medium mb-1" style={{ color: 'var(--color-accent-primary)' }}>
-            Phase 1 Complete — Foundation & Auth
+          <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent)', marginBottom: '3px' }}>
+            Phase 1 complete — Auth &amp; workspace foundation live
           </p>
-          <p className="text-[13px]" style={{ color: 'var(--color-text-secondary)' }}>
-            The core auth layer, workspace, and dashboard shell are live. Context engine, integrations, and AI query interface coming in Phase 2–4.
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+            Context engine, integrations, and AI query interface are coming in Phases 2–4.
           </p>
         </div>
       </div>

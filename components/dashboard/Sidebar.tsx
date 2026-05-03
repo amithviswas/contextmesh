@@ -3,39 +3,28 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import {
-  LayoutDashboard,
-  FolderKanban,
-  Search,
-  Plug,
-  Settings,
-  LogOut,
-  ChevronDown,
-  Menu,
-  X,
-} from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Search, Plug, Settings, LogOut, ChevronDown, Menu, X } from 'lucide-react';
 import Logo from '@/components/ui/Logo';
 import { createClient } from '@/lib/supabase/client';
-import { cn } from '@/lib/utils';
 
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/projects', label: 'Projects', icon: FolderKanban },
-  { href: '/query', label: 'Query', icon: Search },
-  { href: '/integrations', label: 'Integrations', icon: Plug },
-  { href: '/settings', label: 'Settings', icon: Settings },
+const NAV = [
+  { href: '/dashboard',     label: 'Dashboard',    icon: LayoutDashboard },
+  { href: '/projects',      label: 'Projects',     icon: FolderKanban },
+  { href: '/query',         label: 'Query',        icon: Search },
+  { href: '/integrations',  label: 'Integrations', icon: Plug },
+  { href: '/settings',      label: 'Settings',     icon: Settings },
 ];
 
-interface SidebarProps {
+interface Props {
   userEmail: string;
   workspaceName: string;
 }
 
-export default function Sidebar({ userEmail, workspaceName }: SidebarProps) {
+export default function Sidebar({ userEmail, workspaceName }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClient();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -43,164 +32,166 @@ export default function Sidebar({ userEmail, workspaceName }: SidebarProps) {
     router.refresh();
   };
 
-  const userInitial = userEmail?.[0]?.toUpperCase() ?? 'U';
+  const initial = (userEmail?.[0] ?? 'U').toUpperCase();
+  const wInitial = (workspaceName?.[0] ?? 'W').toUpperCase();
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full">
+  const NavLinks = () => (
+    <>
+      {NAV.map(({ href, label, icon: Icon }) => {
+        const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
+        return (
+          <Link
+            key={href}
+            href={href}
+            id={`nav-${label.toLowerCase()}`}
+            className={`nav-link${active ? ' active' : ''}`}
+            onClick={() => setOpen(false)}
+          >
+            <Icon size={15} strokeWidth={active ? 2 : 1.75} />
+            <span>{label}</span>
+          </Link>
+        );
+      })}
+    </>
+  );
+
+  const SidebarInner = () => (
+    <>
       {/* Logo */}
-      <div className="px-5 py-5 border-b" style={{ borderColor: 'var(--color-bg-border)' }}>
+      <div className="sidebar-logo">
         <Logo size="sm" />
       </div>
 
-      {/* Workspace selector */}
-      <div className="px-3 py-3 border-b" style={{ borderColor: 'var(--color-bg-border)' }}>
+      {/* Workspace */}
+      <div className="sidebar-workspace">
         <button
-          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-[8px] transition-colors duration-150 text-left group"
-          style={{ background: 'var(--color-bg-elevated)' }}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 10px',
+            borderRadius: '8px',
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--bg-border)',
+            cursor: 'pointer',
+            textAlign: 'left',
+          }}
         >
-          <div
-            className="w-6 h-6 rounded-[5px] flex-shrink-0 flex items-center justify-center text-[10px] font-[var(--font-display)] font-700"
-            style={{ background: 'var(--color-accent-subtle)', color: 'var(--color-accent-primary)', border: '1px solid rgba(0,212,180,0.2)' }}
-          >
-            {workspaceName?.[0]?.toUpperCase() ?? 'W'}
+          <div style={{
+            width: '24px', height: '24px', borderRadius: '6px', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'var(--accent-subtle)', border: '1px solid var(--accent-border)',
+            fontSize: '11px', fontWeight: 700, color: 'var(--accent)',
+            fontFamily: 'var(--font-display)',
+          }}>
+            {wInitial}
           </div>
-          <span className="text-[13px] font-medium truncate flex-1" style={{ color: 'var(--color-text-primary)' }}>
+          <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {workspaceName || 'My Workspace'}
           </span>
-          <ChevronDown size={13} style={{ color: 'var(--color-text-tertiary)' }} />
+          <ChevronDown size={12} style={{ color: 'var(--text-tertiary)', flexShrink: 0 }} />
         </button>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5" aria-label="Main navigation">
-        {navItems.map(({ href, label, icon: Icon }) => {
-          const isActive = pathname === href || pathname.startsWith(href + '/');
-          return (
-            <Link
-              key={href}
-              href={href}
-              id={`nav-${label.toLowerCase()}`}
-              onClick={() => setMobileOpen(false)}
-              className={cn(
-                'flex items-center gap-2.5 px-2.5 py-2 rounded-[8px] text-[13px] font-medium',
-                'transition-all duration-150',
-                'relative',
-                isActive
-                  ? 'text-[var(--color-text-primary)]'
-                  : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-elevated)]'
-              )}
-              style={
-                isActive
-                  ? {
-                      background: 'var(--color-accent-subtle)',
-                      color: 'var(--color-text-primary)',
-                    }
-                  : {}
-              }
-            >
-              {/* Active indicator */}
-              {isActive && (
-                <span
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
-                  style={{ background: 'var(--color-accent-primary)' }}
-                />
-              )}
-              <Icon size={15} style={{ color: isActive ? 'var(--color-accent-primary)' : 'inherit' }} />
-              {label}
-            </Link>
-          );
-        })}
+      {/* Navigation */}
+      <nav className="sidebar-nav" aria-label="Main navigation">
+        <NavLinks />
       </nav>
 
-      {/* User + Logout */}
-      <div className="px-3 py-4 border-t" style={{ borderColor: 'var(--color-bg-border)' }}>
-        <div className="flex items-center gap-2.5 px-2.5 py-2 mb-1">
-          <div
-            className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[11px] font-medium"
-            style={{ background: 'var(--color-bg-elevated)', color: 'var(--color-text-primary)', border: '1px solid var(--color-bg-border)' }}
-          >
-            {userInitial}
+      {/* Footer */}
+      <div className="sidebar-footer">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', marginBottom: '4px' }}>
+          <div style={{
+            width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'var(--bg-elevated)', border: '1px solid var(--bg-border)',
+            fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)',
+          }}>
+            {initial}
           </div>
-          <span className="text-[12px] truncate flex-1" style={{ color: 'var(--color-text-secondary)' }}>
+          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
             {userEmail}
           </span>
         </div>
         <button
           id="logout-btn"
           onClick={handleLogout}
-          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-[8px] text-[13px] transition-all duration-150"
-          style={{ color: 'var(--color-text-tertiary)' }}
-          onMouseEnter={e => {
-            e.currentTarget.style.color = 'var(--color-error)';
-            e.currentTarget.style.background = 'rgba(248, 113, 113, 0.08)';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.color = 'var(--color-text-tertiary)';
-            e.currentTarget.style.background = 'transparent';
-          }}
+          className="nav-link"
+          style={{ width: '100%', border: 'none', background: 'none' }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'var(--color-error)'; e.currentTarget.style.background = 'rgba(248,113,113,0.06)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = ''; e.currentTarget.style.background = ''; }}
         >
           <LogOut size={14} />
-          Sign out
+          <span>Sign out</span>
         </button>
       </div>
-    </div>
+    </>
   );
 
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside
-        className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 z-40"
-        style={{
-          width: 'var(--sidebar-width)',
-          background: 'var(--color-bg-secondary)',
-          borderRight: '1px solid var(--color-bg-border)',
-        }}
-      >
-        <SidebarContent />
+      {/* ── Desktop sidebar ── */}
+      <aside className="dashboard-sidebar" aria-label="Sidebar">
+        <SidebarInner />
       </aside>
 
-      {/* Mobile top bar */}
-      <div
-        className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14"
-        style={{ background: 'var(--color-bg-secondary)', borderBottom: '1px solid var(--color-bg-border)' }}
-      >
+      {/* ── Mobile top bar ── */}
+      <div className="mobile-topbar">
         <Logo size="sm" />
         <button
           id="mobile-menu-btn"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 rounded-[8px] transition-colors"
-          style={{ color: 'var(--color-text-secondary)' }}
+          onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '4px' }}
         >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          {open ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
-      {/* Mobile drawer */}
-      {mobileOpen && (
+      {/* ── Mobile drawer ── */}
+      {open && (
         <>
           <div
-            className="md:hidden fixed inset-0 z-30"
-            style={{ background: 'rgba(0,0,0,0.6)' }}
-            onClick={() => setMobileOpen(false)}
+            onClick={() => setOpen(false)}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 39,
+              background: 'rgba(0,0,0,0.7)',
+              backdropFilter: 'blur(2px)',
+            }}
           />
           <aside
-            className="md:hidden fixed left-0 top-0 bottom-0 z-50 flex flex-col"
             style={{
+              position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 50,
               width: '280px',
-              background: 'var(--color-bg-secondary)',
-              borderRight: '1px solid var(--color-bg-border)',
+              background: 'var(--bg-secondary)',
+              borderRight: '1px solid var(--bg-border)',
+              display: 'flex', flexDirection: 'column',
             }}
           >
-            <div className="flex items-center justify-between px-5 py-5 border-b" style={{ borderColor: 'var(--color-bg-border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 16px 16px', borderBottom: '1px solid var(--bg-border)' }}>
               <Logo size="sm" />
-              <button onClick={() => setMobileOpen(false)} style={{ color: 'var(--color-text-tertiary)' }}>
+              <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)' }}>
                 <X size={18} />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto">
-              <SidebarContent />
+            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+              <div className="sidebar-workspace">
+                <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '8px', background: 'var(--bg-elevated)', border: '1px solid var(--bg-border)', cursor: 'pointer' }}>
+                  <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'var(--accent-subtle)', border: '1px solid var(--accent-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--accent)' }}>{wInitial}</div>
+                  <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)', flex: 1 }}>{workspaceName}</span>
+                </button>
+              </div>
+              <nav className="sidebar-nav"><NavLinks /></nav>
+            </div>
+            <div className="sidebar-footer">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', marginBottom: '4px' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--bg-elevated)', border: '1px solid var(--bg-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)' }}>{initial}</div>
+                <span style={{ fontSize: '12px', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>{userEmail}</span>
+              </div>
+              <button onClick={handleLogout} className="nav-link" style={{ width: '100%', border: 'none', background: 'none' }}>
+                <LogOut size={14} /><span>Sign out</span>
+              </button>
             </div>
           </aside>
         </>
