@@ -1,0 +1,109 @@
+import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { z } from 'zod';
+
+const CreateProjectSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(80, 'Name must be 80 chars or less'),
+  description: z.string().max(500).optional().nullable(),
+});
+
+// ── GET /api/projects — list projects for current workspace ──
+export async function GET() {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Resolve workspace via membership
+  const { data: membership } = await supabase
+    .from('memberships')
+    .select('workspace_id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (!membership) {
+    return NextResponse.json({ data: [] });
+  }
+
+  const { data: projects, error } = await supabase
+    .from('projects')
+    .select('*, context_items(count)')
+    .eq('workspace_id', membership.workspace_id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Flatten count
+  const shaped = (projects ?? []).map((p: Record<string, unknown>) => ({
+    ...p,
+    context_item_count: (p['context_items'] as { count: number }[] | null)?.[0]?.count ?? 0,
+    context_items: undefined,
+  }));
+
+  return NextResponse.json({ data: shaped });
+}
+
+// ── POST /api/projects — create project ──────────────────
+export async function POST(request: Request) {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const body = await request.json().catch(() => ({}));
+  const parsed = CreateProjectSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
+  }
+
+  // Resolve workspace
+  const { data: membership } = await supabase
+    .from('memberships')
+    .select('workspace_id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (!membership) {
+    return NextResponse.json({ error: 'No workspace found' }, { status: 400 });
+  }
+
+  // Free plan: max 1 project
+  const { count } = await supabase
+    .from('projects')
+    .select('*', { count: 'exact', head: true })
+    .eq('workspace_id', membership.workspace_id);
+
+  // Check workspace plan
+  const { data: workspace } = await supabase
+    .from('workspaces')
+    .select('plan')
+    .eq('id', membership.workspace_id)
+    .single();
+
+  if (workspace?.plan === 'free' && (count ?? 0) >= 1) {
+    return NextResponse.json(
+      { error: 'Free plan is limited to 1 project. Upgrade to Pro for unlimited projects.' },
+      { status: 403 }
+    );
+  }
+
+  const { data: project, error } = await supabase
+    .from('projects')
+    .insert({
+      workspace_id: membership.workspace_id,
+      name: parsed.data.name,
+      description: parsed.data.description ?? null,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ data: project }, { status: 201 });
+}
