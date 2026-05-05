@@ -115,10 +115,10 @@ export default function AnswerStream({
       {/* Error state */}
       {errorMessage && (
         <div style={{ padding: '14px 16px', borderRadius: '10px', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', fontSize: '13px', color: '#F87171', lineHeight: 1.5 }}>
-          {errorMessage.includes('ANTHROPIC_NOT_CONFIGURED')
-            ? '⚠️ Anthropic API key not configured. Add ANTHROPIC_API_KEY to your .env.local to enable AI responses.'
+          {errorMessage.includes('AI_NOT_CONFIGURED') || errorMessage.includes('ANTHROPIC_NOT_CONFIGURED')
+            ? '⚠️ AI not configured. Add a free GROQ_API_KEY to .env.local — get one in 30 seconds at console.groq.com'
             : errorMessage.includes('credit') || errorMessage.includes('balance')
-            ? '💳 Anthropic account has insufficient credits. Add funds at console.anthropic.com/settings/billing to enable AI responses.'
+            ? '💳 Groq account issue. Check your API key at console.groq.com'
             : errorMessage}
         </div>
       )}

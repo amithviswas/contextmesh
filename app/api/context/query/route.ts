@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { generateEmbedding } from '@/lib/embeddings/generate';
-import { anthropic, ANTHROPIC_MODEL, isAnthropicConfigured } from '@/lib/anthropic/client';
+import { groq, GROQ_MODEL, isAIConfigured } from '@/lib/anthropic/client';
 import { getQueryUsage } from '@/lib/context/usage';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,10 +41,10 @@ export async function POST(request: NextRequest) {
   }
   const workspaceId: string = project.workspace_id;
 
-  // ── 4. Check Anthropic config ──────────────────────────────────────────────
-  if (!isAnthropicConfigured()) {
+  // ── 4. Check AI config ────────────────────────────────────────────────────
+  if (!isAIConfigured()) {
     return NextResponse.json(
-      { error: 'ANTHROPIC_NOT_CONFIGURED', message: 'Add ANTHROPIC_API_KEY to .env.local' },
+      { error: 'AI_NOT_CONFIGURED', message: 'Add GROQ_API_KEY to .env.local — get a free key at console.groq.com' },
       { status: 503 }
     );
   }
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     )
     .join('\n\n---\n\n');
 
-  // ── 9. Insert query record (get ID for later update) ─────────────────────
+  // ── 9. Insert query record ─────────────────────────────────────────────────
   const { data: queryRecord } = await service
     .from('queries')
     .insert({
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
 
   const queryId: string = queryRecord?.id;
 
-  // ── 10. Stream Claude response ─────────────────────────────────────────────
+  // ── 10. Stream Groq (Llama) response ──────────────────────────────────────
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
@@ -110,53 +110,50 @@ export async function POST(request: NextRequest) {
         // Send sources immediately
         send({ type: 'sources', sources: contextItems });
 
-        // Stream Claude tokens
-        const claudeStream = anthropic!.messages.stream({
-          model: ANTHROPIC_MODEL,
+        // Stream Groq tokens
+        const groqStream = await groq!.chat.completions.create({
+          model: GROQ_MODEL,
           max_tokens: 1024,
+          stream: true,
           messages: [
             {
+              role: 'system',
+              content: 'You are a project context assistant for a software development team. Answer questions based ONLY on the provided context. If the answer isn\'t in the context, say "I don\'t have information about that in the current context." Be specific, concise, and use markdown formatting where appropriate.',
+            },
+            {
               role: 'user',
-              content: `You are a project context assistant for a software development team. Answer questions based ONLY on the provided context. If the answer isn't in the context, say "I don't have information about that in the current context."
-
-Be specific and reference actual details from the context. Keep answers concise and actionable. Use markdown formatting where appropriate (bold for key terms, code blocks for code, bullet lists for multiple points).
-
-PROJECT CONTEXT:
-${contextText}
-
-QUESTION: ${question.trim()}
-
-Answer:`,
+              content: `PROJECT CONTEXT:\n${contextText}\n\nQUESTION: ${question.trim()}\n\nAnswer:`,
             },
           ],
         });
 
         let fullAnswer = '';
-        for await (const chunk of claudeStream) {
-          if (
-            chunk.type === 'content_block_delta' &&
-            chunk.delta.type === 'text_delta'
-          ) {
-            fullAnswer += chunk.delta.text;
-            send({ type: 'token', token: chunk.delta.text });
+        let totalTokens = 0;
+
+        for await (const chunk of groqStream) {
+          const token = chunk.choices[0]?.delta?.content ?? '';
+          if (token) {
+            fullAnswer += token;
+            send({ type: 'token', token });
+          }
+          if (chunk.usage) {
+            totalTokens = chunk.usage.total_tokens ?? 0;
           }
         }
 
-        const finalMsg = await claudeStream.finalMessage();
-        const tokensUsed = finalMsg.usage.output_tokens + finalMsg.usage.input_tokens;
-
-        // Update query record with answer + token count
+        // Update query record
         if (queryId) {
           await service
             .from('queries')
-            .update({ answer: fullAnswer, tokens_used: tokensUsed })
+            .update({ answer: fullAnswer, tokens_used: totalTokens })
             .eq('id', queryId);
         }
 
-        send({ type: 'done', query_id: queryId, tokens_used: tokensUsed });
-      } catch (err) {
-        console.error('Claude streaming error:', err);
-        send({ type: 'error', message: 'AI response failed. Please try again.' });
+        send({ type: 'done', query_id: queryId, tokens_used: totalTokens });
+      } catch (err: unknown) {
+        console.error('Groq streaming error:', err);
+        const msg = err instanceof Error ? err.message : 'AI response failed. Please try again.';
+        send({ type: 'error', message: msg });
       } finally {
         controller.close();
       }

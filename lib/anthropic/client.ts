@@ -1,13 +1,12 @@
-import Anthropic from '@anthropic-ai/sdk';
+import Groq from 'groq-sdk';
 
-const apiKey = process.env.ANTHROPIC_API_KEY;
+const apiKey = process.env.GROQ_API_KEY;
 
-export const anthropic = apiKey
-  ? new Anthropic({ apiKey })
-  : null;
+export const groq = apiKey ? new Groq({ apiKey }) : null;
 
-export const ANTHROPIC_MODEL = 'claude-opus-4-5';
+/** Groq model — Llama 3.3 70B is free and very capable */
+export const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
-export function isAnthropicConfigured(): boolean {
+export function isAIConfigured(): boolean {
   return Boolean(apiKey);
 }
