@@ -1,69 +1,51 @@
 import type { Metadata } from 'next';
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
+import SettingsClient from './SettingsClient';
 
 export const metadata: Metadata = { title: 'Settings — ContextMesh' };
 
-const sections = [
-  { id: 'settings-profile', title: 'Profile', desc: 'Update your name, avatar, and preferences', emoji: '👤', phase: 'Phase 5' },
-  { id: 'settings-workspace', title: 'Workspace', desc: 'Rename workspace, manage team members', emoji: '🏢', phase: 'Phase 5' },
-  { id: 'settings-billing', title: 'Billing', desc: 'Manage your plan and payment method', emoji: '💳', phase: 'Phase 6' },
-  { id: 'settings-api', title: 'API Keys', desc: 'Generate tokens for the ContextMesh API', emoji: '🔑', phase: 'Phase 6' },
-];
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getService(): any {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const service = getService();
+
+  const { data: membership } = await service
+    .from('memberships')
+    .select('workspace_id, role, display_name')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  const { data: workspace } = membership?.workspace_id
+    ? await service.from('workspaces').select('id, name, slug, plan').eq('id', membership.workspace_id).maybeSingle()
+    : { data: null };
+
   return (
-    <div className="page-enter" style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-      <div>
-        <p style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'var(--accent)', marginBottom: '10px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-          Settings
+    <div className="page-enter">
+      <div style={{ marginBottom: '24px' }}>
+        <p style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'var(--accent)', marginBottom: '8px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+          Account
         </p>
-        <h1 style={{ fontSize: '28px', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.025em', marginBottom: '4px' }}>
+        <h1 style={{ fontSize: '26px', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.025em' }}>
           Settings
         </h1>
-        <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-          Manage your workspace, profile, and billing.
-        </p>
       </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {sections.map((s) => (
-          <div
-            key={s.id}
-            id={s.id}
-            className="card"
-            style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 20px', opacity: 0.65, cursor: 'not-allowed' }}
-          >
-            <div style={{
-              width: '44px', height: '44px', borderRadius: '10px', flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: 'var(--bg-elevated)', border: '1px solid var(--bg-border)',
-              fontSize: '20px',
-            }}>
-              {s.emoji}
-            </div>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '2px' }}>
-                {s.title}
-              </p>
-              <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                {s.desc}
-              </p>
-            </div>
-            <span className="tag">{s.phase}</span>
-          </div>
-        ))}
-      </div>
-
-      <div
-        id="settings-placeholder"
-        style={{
-          borderRadius: '10px', padding: '16px 20px',
-          background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.2)',
-        }}
-      >
-        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-          Full settings panel — team management, billing, and workspace settings coming in Phases 5–6.
-        </p>
-      </div>
+      <SettingsClient
+        user={{ id: user.id, email: user.email ?? '', display_name: membership?.display_name ?? null }}
+        workspace={workspace}
+        myRole={membership?.role ?? 'member'}
+      />
     </div>
   );
 }

@@ -60,8 +60,31 @@ export interface Membership {
   workspace_id: string;
   user_id: string;
   role: 'owner' | 'admin' | 'member';
+  display_name?: string | null;
+  onboarding_completed_steps?: string[];
   created_at: string;
 }
+
+export interface Member {
+  user_id: string;
+  email: string;
+  display_name: string | null;
+  role: 'owner' | 'admin' | 'member';
+  joined_at: string;
+}
+
+export interface Invite {
+  id: string;
+  workspace_id: string;
+  email: string;
+  role: 'owner' | 'admin' | 'member';
+  token: string;
+  invited_by: string | null;
+  expires_at: string;
+  accepted_at: string | null;
+  created_at: string;
+}
+
 
 // ── API response shapes ───────────────────────────────
 
