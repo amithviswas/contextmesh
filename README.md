@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ContextMesh
 
-## Getting Started
+**🚧 Work in Progress 🚧**
 
-First, run the development server:
+ContextMesh is currently under active development.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Overview
+ContextMesh is a platform that provides a shared memory layer for development teams. It features a core context engine with local text-to-vector embeddings and semantic similarity search via pgvector. 
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features (Current & Upcoming)
+- **Projects Management**: Organize context items by team or codebase.
+- **Local Embeddings**: Generates 384-dimensional vector embeddings locally using Transformers.js (`all-MiniLM-L6-v2`) without external API costs.
+- **Semantic Search**: Powered by PostgreSQL and pgvector for accurate context retrieval.
+- **Integrations**: Auto-sync from GitHub, Slack, Jira, Linear (Upcoming).
+- **AI Query**: Natural language Q&A over your context items (Upcoming).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
+- **Frontend**: Next.js 16 (App Router), React 19, Tailwind CSS v4
+- **Backend / Database**: Supabase (Auth, PostgreSQL, pgvector)
+- **ML / AI**: Transformers.js (Local embeddings)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Development Status
 
-## Learn More
+### ✅ Phase 1: UI/UX Overhaul & Auth Foundation (Completed)
+- **Modern Authentication**: GitHub OAuth integration with Supabase.
+- **Workspace Security**: Database RLS (Row Level Security) enforcing multi-tenant isolation via a `memberships` table.
+- **Premium UI Design**: Migrated to Tailwind v4, standardizing on a dark aesthetic with customized typography (Inter, Syne, DM Mono) using Next.js fonts.
+- **Dashboard Shell**: Responsive sidebar and main layout, replacing arbitrary responsive properties with stable CSS classes.
 
-To learn more about Next.js, take a look at the following resources:
+### ✅ Phase 2: Core Context Engine (Completed)
+- **Projects CRUD**: Create, read, and delete projects (with a Free plan enforcement limit).
+- **Local Embedding Pipeline**: Instant background vectorization using a local Transformers.js instance.
+- **Context Ingestion API**: Input rich markdown content representing architecture decisions, blockers, meeting notes, etc.
+- **pgvector Integration**: Database schema optimized for 384-dimensional vectors with cosine similarity RPC functions (`search_context`).
+- **Real-time Dashboards**: Interactive client-side pages showing project metrics, context ingestion counts, and recent activity feeds.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+<br/>
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
+### 🚧 Under Development 🚧
+---
 
-## Deploy on Vercel
+### ⏳ Phase 3: AI Query Interface 
+- Natural language querying against the context memory.
+- LLM response generation backed by semantic context item retrieval.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### ⏳ Phase 4: Third-party Integrations
+- Automatic context ingestion from GitHub, Slack, Jira, and Linear APIs.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### ⏳ Phase 5: Team Analytics & Usage Billing
+- Stripe integration for pro tier upgrades.
+- Reporting on context utilization and knowledge gaps.
+
+### ⏳ Phase 6 & 7: Polish, Launch, & Post-Launch
+- Chrome Extensions and final product launch steps.
+- Security hardening and production scale optimization.
+
+## License
+This project is licensed under the [Apache License 2.0](LICENSE).
+
+---
+*Note: Detailed documentation for the project planning, API, and architecture can be found in the `/project_documentation` directory.*

@@ -23,7 +23,9 @@ interface Props {
   onCreated: (item: ContextItem) => void;
 }
 
-const TYPE_OPTIONS: Array<{ value: ContextItem['type']; label: string; desc: string; emoji: string }> = [
+type ManualContextType = 'decision' | 'architecture' | 'blocker' | 'meeting_note' | 'note';
+
+const TYPE_OPTIONS: Array<{ value: ManualContextType; label: string; desc: string; emoji: string }> = [
   { value: 'decision',     label: 'Decision',       desc: 'A key choice made by the team',      emoji: '⚡' },
   { value: 'architecture', label: 'Architecture',   desc: 'System design or technical choice',   emoji: '🏗️' },
   { value: 'blocker',      label: 'Blocker',        desc: 'Something blocking progress',         emoji: '🚧' },

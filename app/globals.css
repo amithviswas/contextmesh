@@ -299,3 +299,58 @@ img, video { display: block; max-width: 100%; }
 /* ── Spin animation ───────────────────────────────────── */
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .animate-spin { animation: spin 1s linear infinite; }
+
+/* ── Blink animation (streaming cursor) ───────────────── */
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ── Query grid responsive ────────────────────────────── */
+@media (max-width: 768px) {
+  .query-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ── Markdown prose styles ────────────────────────────── */
+.answer-markdown p { margin-bottom: 10px; }
+.answer-markdown p:last-child { margin-bottom: 0; }
+.answer-markdown ul, .answer-markdown ol { margin: 8px 0 10px 20px; }
+.answer-markdown li { margin-bottom: 4px; }
+.answer-markdown strong { color: var(--text-primary); font-weight: 700; }
+.answer-markdown code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--bg-border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  color: var(--accent);
+}
+.answer-markdown pre {
+  background: var(--bg-elevated);
+  border: 1px solid var(--bg-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 10px 0;
+  overflow-x: auto;
+}
+.answer-markdown pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.answer-markdown h1, .answer-markdown h2, .answer-markdown h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 14px 0 6px;
+}
+
+/* ── Source card & recent query hover ─────────────────── */
+.source-card:hover { border-color: var(--accent-border) !important; }
+.recent-query-btn:hover { border-color: var(--accent-border) !important; background: var(--bg-elevated) !important; }
+
+/* ── Details summary arrow ────────────────────────────── */
+details > summary::-webkit-details-marker { display: none; }
+details > summary::before { content: '▶'; font-size: 10px; color: var(--text-tertiary); margin-right: 8px; transition: transform 0.15s; display: inline-block; }
+details[open] > summary::before { transform: rotate(90deg); }
+

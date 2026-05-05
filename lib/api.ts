@@ -58,3 +58,39 @@ export const contextApi = {
       body: JSON.stringify(body),
     }),
 };
+
+// ── Integrations ───────────────────────────────────────
+
+import type { Integration } from '@/types';
+
+export const integrationsApi = {
+  list: () => apiFetch<Integration[]>('/api/integrations'),
+
+  disconnect: (provider: 'github' | 'slack') =>
+    apiFetch<{ disconnected: boolean }>(
+      `/api/integrations/${provider}/disconnect`,
+      { method: 'POST' }
+    ),
+};
+
+// ── Queries ─────────────────────────────────────────────
+
+import type { Query } from '@/types';
+
+export const queryApi = {
+  /** Returns raw Response — caller reads the SSE stream */
+  ask: (body: { project_id: string; question: string }): Promise<Response> =>
+    fetch('/api/context/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+
+  list: (projectId?: string, limit = 10) => {
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (projectId) params.set('project_id', projectId);
+    return apiFetch<Query[]>(`/api/context/queries?${params}`);
+  },
+};
+
+

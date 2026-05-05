@@ -14,7 +14,7 @@ export interface ContextItem {
   id: string;
   project_id: string;
   source: 'github' | 'slack' | 'jira' | 'linear' | 'manual';
-  type: 'decision' | 'architecture' | 'blocker' | 'meeting_note' | 'note';
+  type: 'decision' | 'architecture' | 'blocker' | 'meeting_note' | 'note' | 'commit' | 'pr' | 'issue' | 'message';
   title: string;
   content: string;
   metadata: Record<string, unknown>;
@@ -22,6 +22,29 @@ export interface ContextItem {
   indexed_at?: string | null;
   // joined
   project_name?: string;
+}
+
+export interface Integration {
+  id: string;
+  workspace_id: string;
+  provider: 'github' | 'slack' | 'jira' | 'linear';
+  status: 'active' | 'error' | 'disconnected';
+  config: Record<string, unknown>;
+  items_synced: number;
+  last_synced_at: string | null;
+  error_message: string | null;
+  created_at: string;
+}
+
+export interface Query {
+  id: string;
+  project_id: string;
+  workspace_id?: string;
+  question: string;
+  answer: string | null;
+  context_used: string[];
+  tokens_used: number;
+  created_at: string;
 }
 
 export interface Workspace {
@@ -69,6 +92,10 @@ export const CONTEXT_TYPE_LABELS: Record<ContextItem['type'], string> = {
   blocker:      'Blocker',
   meeting_note: 'Meeting Note',
   note:         'Note',
+  commit:       'Commit',
+  pr:           'Pull Request',
+  issue:        'Issue',
+  message:      'Message',
 };
 
 export const SOURCE_LABELS: Record<ContextItem['source'], string> = {
