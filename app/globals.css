@@ -373,3 +373,13 @@ details[open] > summary::before { transform: rotate(90deg); }
 /* ── Select input ─────────────────────────────────────── */
 select { appearance: none; }
 
+/* ── Marketing nav link ───────────────────────────────── */
+.marketing-nav-link {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.marketing-nav-link:hover { color: var(--text-primary); }
+
+

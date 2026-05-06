@@ -23,10 +23,7 @@ export default function MarketingLayout({ children }: Props) {
             { href: '/#features', label: 'Features' },
             { href: '/pricing', label: 'Pricing' },
           ].map(({ href, label }) => (
-            <Link key={href} href={href} style={{ fontSize: '14px', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.15s' }}
-              onMouseEnter={(e) => { (e.target as HTMLElement).style.color = 'var(--text-primary)'; }}
-              onMouseLeave={(e) => { (e.target as HTMLElement).style.color = 'var(--text-secondary)'; }}
-            >
+            <Link key={href} href={href} className="marketing-nav-link">
               {label}
             </Link>
           ))}
