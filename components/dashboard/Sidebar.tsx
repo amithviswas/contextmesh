@@ -3,16 +3,17 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, FolderKanban, Search, Plug, Settings, LogOut, ChevronDown, Menu, X } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Search, Plug, Settings, LogOut, ChevronDown, Menu, X, CreditCard } from 'lucide-react';
 import Logo from '@/components/ui/Logo';
 import { createClient } from '@/lib/supabase/client';
 
 const NAV = [
-  { href: '/dashboard',     label: 'Dashboard',    icon: LayoutDashboard },
-  { href: '/projects',      label: 'Projects',     icon: FolderKanban },
-  { href: '/query',         label: 'Query',        icon: Search },
-  { href: '/integrations',  label: 'Integrations', icon: Plug },
-  { href: '/settings',      label: 'Settings',     icon: Settings },
+  { href: '/dashboard',          label: 'Dashboard',    icon: LayoutDashboard },
+  { href: '/projects',           label: 'Projects',     icon: FolderKanban },
+  { href: '/query',              label: 'Query',        icon: Search },
+  { href: '/integrations',       label: 'Integrations', icon: Plug },
+  { href: '/settings',           label: 'Settings',     icon: Settings },
+  { href: '/settings/billing',   label: 'Billing',      icon: CreditCard },
 ];
 
 interface Props {

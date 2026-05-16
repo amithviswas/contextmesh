@@ -136,8 +136,10 @@ export async function POST(request: NextRequest) {
             fullAnswer += token;
             send({ type: 'token', token });
           }
-          if (chunk.usage) {
-            totalTokens = chunk.usage.total_tokens ?? 0;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const chunkUsage = (chunk as any).usage;
+          if (chunkUsage) {
+            totalTokens = chunkUsage.total_tokens ?? 0;
           }
         }
 
