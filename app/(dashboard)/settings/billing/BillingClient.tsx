@@ -120,7 +120,11 @@ export default function BillingClient({ workspace, myRole, usage }: Props) {
             border: `1px solid ${isPaid ? 'var(--accent-border)' : 'var(--bg-border)'}`,
             textTransform: 'uppercase',
           }}>
-            {isPaid ? (workspace.stripe_subscription_status ?? 'active') : 'Free'}
+            {isPaid
+              ? (['incomplete', 'incomplete_expired'].includes(workspace.stripe_subscription_status ?? '')
+                  ? 'active'
+                  : (workspace.stripe_subscription_status ?? 'active'))
+              : 'Free'}
           </span>
         </div>
 
