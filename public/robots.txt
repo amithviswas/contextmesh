@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /projects/
+Disallow: /query/
+Disallow: /integrations/
+
+Sitemap: https://contextmesh.vercel.app/sitemap.xml
