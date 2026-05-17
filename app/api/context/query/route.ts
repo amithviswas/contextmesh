@@ -4,6 +4,7 @@ import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { generateEmbedding } from '@/lib/embeddings/generate';
 import { groq, GROQ_MODEL, isAIConfigured } from '@/lib/anthropic/client';
 import { getQueryUsage } from '@/lib/context/usage';
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getService(): any {
@@ -21,11 +22,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // ── 2. Parse body ──────────────────────────────────────────────────────────
-  const { project_id, question } = await request.json();
-  if (!project_id || !question?.trim()) {
+  // ── 1b. Rate limit: 30 AI queries per minute per user (HIGH-05) ────────────
+  const rl = rateLimit(`query:${user.id}`, 30, 60_000);
+  if (!rl.allowed) return rateLimitResponse(rl.resetMs);
+
+  // ── 2. Parse + sanitize body ───────────────────────────────────────────────
+  const { project_id, question: rawQuestion } = await request.json();
+  if (!project_id || !rawQuestion?.trim()) {
     return NextResponse.json({ error: 'project_id and question are required' }, { status: 400 });
   }
+
+  // MED-03: Strip prompt injection attempts before sending to LLM
+  const question = rawQuestion
+    .trim()
+    .slice(0, 2000) // hard length cap
+    .replace(/ignore (all )?(previous|prior|above) instructions?/gi, '[filtered]')
+    .replace(/system prompt/gi, '[filtered]')
+    .replace(/you are now/gi, '[filtered]')
+    .replace(/\bDAN\b/g, '[filtered]');
 
   const service = getService();
 

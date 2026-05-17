@@ -16,6 +16,9 @@ export async function PATCH(request: NextRequest) {
     .update({ display_name: display_name?.trim() ?? null })
     .eq('user_id', user.id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('[settings/profile]', error);
+    return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
+  }
   return NextResponse.json({ updated: true });
 }

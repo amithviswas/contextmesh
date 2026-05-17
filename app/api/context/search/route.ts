@@ -36,8 +36,8 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    console.error('Search error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('[context/search]', error);
+    return NextResponse.json({ error: 'Search failed' }, { status: 500 });
   }
 
   return NextResponse.json({ data: data ?? [] });

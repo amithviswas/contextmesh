@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateEmbedding } from '@/lib/embeddings/generate';
 import { z } from 'zod';
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
 
 const IngestSchema = z.object({
   project_id: z.string().uuid('Invalid project ID'),
@@ -20,6 +21,10 @@ export async function POST(request: Request) {
   if (authError || !user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  // HIGH-05: Rate limit — 60 ingest requests per minute per user
+  const rl = rateLimit(`ingest:${user.id}`, 60, 60_000);
+  if (!rl.allowed) return rateLimitResponse(rl.resetMs);
 
   const body = await request.json().catch(() => ({}));
   const parsed = IngestSchema.safeParse(body);
@@ -59,8 +64,8 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    console.error('Ingest error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('[context/ingest]', error);
+    return NextResponse.json({ error: 'Failed to save context item' }, { status: 500 });
   }
 
   return NextResponse.json({ data: item }, { status: 201 });

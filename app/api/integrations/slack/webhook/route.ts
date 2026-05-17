@@ -58,13 +58,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  if (payload.type === 'url_verification') {
-    return NextResponse.json({ challenge: payload.challenge });
-  }
-
-  // Verify signature for all other requests
+  // HIGH-02: Verify signature for ALL requests — including url_verification.
+  // This stops unauthenticated probing of the endpoint.
   if (!verifySlackSignature(body, request.headers)) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+  }
+
+  // Respond to Slack's URL verification challenge (only after signature passes)
+  if (payload.type === 'url_verification') {
+    return NextResponse.json({ challenge: payload.challenge });
   }
 
   const event = payload.event as Record<string, unknown> | undefined;

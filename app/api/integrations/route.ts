@@ -29,7 +29,8 @@ export async function GET() {
     .order('created_at');
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('[integrations]', error);
+    return NextResponse.json({ error: 'Failed to fetch integrations' }, { status: 500 });
   }
 
   return NextResponse.json({ data: integrations ?? [] });

@@ -36,6 +36,9 @@ export async function PATCH(request: NextRequest) {
     .update({ name: name.trim() })
     .eq('id', membership.workspace_id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('[settings/workspace]', error);
+    return NextResponse.json({ error: 'Failed to update workspace settings' }, { status: 500 });
+  }
   return NextResponse.json({ updated: true });
 }

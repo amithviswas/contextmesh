@@ -33,7 +33,10 @@ export async function GET() {
     .eq('workspace_id', membership.workspace_id)
     .order('created_at', { ascending: true });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('[team/members GET]', error);
+    return NextResponse.json({ error: 'Failed to fetch team members' }, { status: 500 });
+  }
 
   // Enrich with emails using service role
   const enriched = await Promise.all(
@@ -83,7 +86,10 @@ export async function PATCH(request: NextRequest) {
     .eq('workspace_id', myMembership.workspace_id)
     .eq('user_id', user_id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('[team/members PATCH]', error);
+    return NextResponse.json({ error: 'Failed to update member role' }, { status: 500 });
+  }
   return NextResponse.json({ updated: true });
 }
 
@@ -126,6 +132,9 @@ export async function DELETE(request: NextRequest) {
     .eq('workspace_id', myMembership.workspace_id)
     .eq('user_id', targetUserId);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('[team/members DELETE]', error);
+    return NextResponse.json({ error: 'Failed to remove member' }, { status: 500 });
+  }
   return NextResponse.json({ removed: true });
 }

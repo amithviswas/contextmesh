@@ -29,6 +29,9 @@ export async function PATCH(request: NextRequest) {
     .update({ onboarding_completed_steps: updated })
     .eq('user_id', user.id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error('[onboarding]', error);
+    return NextResponse.json({ error: 'Failed to update onboarding progress' }, { status: 500 });
+  }
   return NextResponse.json({ updated: true, steps: updated });
 }
