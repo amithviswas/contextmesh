@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { ensureWorkspace } from '@/lib/auth/onboarding';
 import Sidebar from '@/components/dashboard/Sidebar';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -8,6 +9,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (!user) redirect('/login');
 
+  // Guarantee workspace exists for ALL login methods (email signup, OAuth, admin-created)
+  // ensureWorkspace is idempotent — safe to call on every dashboard load
+  try {
+    await ensureWorkspace(user.id, user.email ?? `user-${user.id}`);
+  } catch (err) {
+    console.error('[dashboard layout] ensureWorkspace failed:', err);
+    // Non-fatal — let the user proceed; individual pages handle missing workspace gracefully
+  }
+
+  // Re-fetch membership after ensuring it exists
   const { data: membership } = await supabase
     .from('memberships')
     .select('workspace_id')
