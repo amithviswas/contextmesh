@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { z } from 'zod';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getService(): any {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 const CreateProjectSchema = z.object({
   name: z.string().min(1, 'Name is required').max(80, 'Name must be 80 chars or less'),
@@ -15,8 +24,10 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Resolve workspace via membership
-  const { data: membership } = await supabase
+  const service = getService();
+
+  // Use service client to bypass RLS — memberships may be created by server-side ensureWorkspace
+  const { data: membership } = await service
     .from('memberships')
     .select('workspace_id')
     .eq('user_id', user.id)
@@ -26,7 +37,7 @@ export async function GET() {
     return NextResponse.json({ data: [] });
   }
 
-  const { data: projects, error } = await supabase
+  const { data: projects, error } = await service
     .from('projects')
     .select('*, context_items(count)')
     .eq('workspace_id', membership.workspace_id)
@@ -61,8 +72,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
-  // Resolve workspace
-  const { data: membership } = await supabase
+  // Resolve workspace — use service client to bypass RLS (memberships may be server-side created)
+  const service = getService();
+  const { data: membership } = await service
     .from('memberships')
     .select('workspace_id')
     .eq('user_id', user.id)
@@ -73,13 +85,13 @@ export async function POST(request: Request) {
   }
 
   // Free plan: max 1 project
-  const { count } = await supabase
+  const { count } = await service
     .from('projects')
     .select('*', { count: 'exact', head: true })
     .eq('workspace_id', membership.workspace_id);
 
   // Check workspace plan
-  const { data: workspace } = await supabase
+  const { data: workspace } = await service
     .from('workspaces')
     .select('plan')
     .eq('id', membership.workspace_id)
@@ -92,7 +104,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data: project, error } = await supabase
+  const { data: project, error } = await service
     .from('projects')
     .insert({
       workspace_id: membership.workspace_id,
