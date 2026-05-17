@@ -35,7 +35,13 @@ export async function POST(request: NextRequest) {
   const body = await request.text();
   const signature = request.headers.get('x-hub-signature-256');
   const event = request.headers.get('x-github-event');
-  const secret = process.env.GITHUB_WEBHOOK_SECRET ?? 'dev-secret';
+
+  // HIGH-01: Fail hard if webhook secret is not configured (do NOT fall back to a default)
+  const secret = process.env.GITHUB_WEBHOOK_SECRET;
+  if (!secret) {
+    console.error('[github/webhook] GITHUB_WEBHOOK_SECRET is not set');
+    return NextResponse.json({ error: 'Webhook not configured' }, { status: 503 });
+  }
 
   // Verify signature
   if (!verifyGitHubWebhook(body, signature, secret)) {

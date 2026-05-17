@@ -25,6 +25,12 @@ export async function POST(request: NextRequest) {
   const { email, role = 'member' } = await request.json();
   if (!email?.trim()) return NextResponse.json({ error: 'email is required' }, { status: 400 });
 
+  // MED-04: Validate role enum — cannot invite someone as 'owner'
+  const validRoles = ['member', 'admin'];
+  if (!validRoles.includes(role)) {
+    return NextResponse.json({ error: `Invalid role. Must be one of: ${validRoles.join(', ')}` }, { status: 400 });
+  }
+
   const service = getService();
 
   // Get workspace + plan
@@ -135,8 +141,30 @@ export async function DELETE(request: NextRequest) {
   if (!inviteId) return NextResponse.json({ error: 'id required' }, { status: 400 });
 
   const service = getService();
+
+  // CRIT-04: Verify the invite belongs to the caller's workspace before deleting
+  const { data: membership } = await service
+    .from('memberships')
+    .select('workspace_id, role')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (!['owner', 'admin'].includes(membership?.role)) {
+    return NextResponse.json({ error: 'Only owners and admins can revoke invites' }, { status: 403 });
+  }
+
+  const { data: invite } = await service
+    .from('invites')
+    .select('workspace_id')
+    .eq('id', inviteId)
+    .maybeSingle();
+
+  if (!invite || invite.workspace_id !== membership.workspace_id) {
+    return NextResponse.json({ error: 'Invite not found' }, { status: 404 });
+  }
+
   const { error } = await service.from('invites').delete().eq('id', inviteId);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   return NextResponse.json({ deleted: true });
 }
 

@@ -1,5 +1,14 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getService(): any {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 // ── GET /api/projects/[id] ────────────────────────────
 export async function GET(
@@ -13,11 +22,25 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { data: project, error } = await supabase
+  const service = getService();
+
+  // Resolve caller's workspace (CRIT-02 fix — scope project to user's workspace)
+  const { data: membership } = await service
+    .from('memberships')
+    .select('workspace_id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (!membership) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
+
+  const { data: project, error } = await service
     .from('projects')
     .select('*, context_items(count)')
     .eq('id', id)
-    .single();
+    .eq('workspace_id', membership.workspace_id)   // ownership enforced
+    .maybeSingle();
 
   if (error || !project) {
     return NextResponse.json({ error: 'Project not found' }, { status: 404 });
@@ -32,6 +55,7 @@ export async function GET(
     },
   });
 }
+
 
 // ── DELETE /api/projects/[id] ─────────────────────────
 export async function DELETE(

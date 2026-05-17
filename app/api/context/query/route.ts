@@ -29,11 +29,22 @@ export async function POST(request: NextRequest) {
 
   const service = getService();
 
-  // ── 3. Resolve workspace ───────────────────────────────────────────────────
+  // ── 3. Resolve workspace and verify membership (HIGH-03 fix) ─────────────────
+  const { data: membership } = await service
+    .from('memberships')
+    .select('workspace_id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (!membership) {
+    return NextResponse.json({ error: 'No workspace found' }, { status: 403 });
+  }
+
   const { data: project } = await service
     .from('projects')
     .select('workspace_id')
     .eq('id', project_id)
+    .eq('workspace_id', membership.workspace_id)   // must belong to user's workspace
     .maybeSingle();
 
   if (!project) {

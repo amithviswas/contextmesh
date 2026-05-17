@@ -34,6 +34,16 @@ export async function POST(_request: NextRequest, { params }: Props) {
     return NextResponse.json({ error: 'This invite has expired' }, { status: 410 });
   }
 
+  // CRIT-03: Bind invite to invitee email — prevent token theft attacks
+  const { data: authUser } = await service.auth.admin.getUserById(user.id);
+  const userEmail = authUser?.user?.email?.toLowerCase() ?? '';
+  if (userEmail !== invite.email.toLowerCase()) {
+    return NextResponse.json(
+      { error: 'This invite was sent to a different email address' },
+      { status: 403 }
+    );
+  }
+
   // Check not already a member
   const { data: existing } = await service
     .from('memberships')
