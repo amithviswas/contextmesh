@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { generateEmbedding } from '@/lib/embeddings/generate';
 import { z } from 'zod';
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getService(): any {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 const IngestSchema = z.object({
   project_id: z.string().uuid('Invalid project ID'),
@@ -34,11 +43,24 @@ export async function POST(request: Request) {
 
   const { project_id, source, type, title, content, metadata } = parsed.data;
 
-  // Verify project belongs to user's workspace
-  const { data: project } = await supabase
+  // Verify project belongs to user's workspace (service client bypasses RLS)
+  const service = getService();
+
+  const { data: membership } = await service
+    .from('memberships')
+    .select('workspace_id')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (!membership) {
+    return NextResponse.json({ error: 'No workspace found' }, { status: 403 });
+  }
+
+  const { data: project } = await service
     .from('projects')
     .select('id')
     .eq('id', project_id)
+    .eq('workspace_id', membership.workspace_id)
     .maybeSingle();
 
   if (!project) {
@@ -48,7 +70,7 @@ export async function POST(request: Request) {
   // Generate embedding (384-dim)
   const embedding = await generateEmbedding(`${title}\n\n${content}`);
 
-  const { data: item, error } = await supabase
+  const { data: item, error } = await service
     .from('context_items')
     .insert({
       project_id,
