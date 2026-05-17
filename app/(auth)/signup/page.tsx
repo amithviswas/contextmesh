@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod';
 import Link from 'next/link';
 import { GitBranch } from 'lucide-react';
@@ -23,6 +24,7 @@ type FormValues = z.infer<typeof schema>;
 
 export default function SignupPage() {
   const supabase = createClient();
+  const router = useRouter();
   const [status, setStatus] = useState<'idle' | 'sent' | 'error'>('idle');
   const [serverError, setServerError] = useState('');
   const [oauthLoading, setOauthLoading] = useState(false);
@@ -35,7 +37,7 @@ export default function SignupPage() {
 
   const onSubmit = async ({ email, password }: FormValues) => {
     setServerError('');
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -45,9 +47,18 @@ export default function SignupPage() {
 
     if (error) {
       setServerError(error.message);
-    } else {
-      setStatus('sent');
+      return;
     }
+
+    // If Supabase returned a session it means email confirmation is disabled —
+    // the user is already authenticated. Redirect straight to the dashboard.
+    if (data.session) {
+      router.push('/dashboard');
+      return;
+    }
+
+    // Otherwise show the "check your email" screen.
+    setStatus('sent');
   };
 
   const signInWithGitHub = async () => {
