@@ -44,6 +44,7 @@ const PROVIDERS: Record<string, ProviderMeta> = {
 interface Props {
   provider: string;
   integration: Integration | null; // null = not connected
+  workspacePlan?: 'free' | 'pro' | 'team';
   connecting?: boolean;
   disconnecting?: boolean;
   onConnect: () => void;
@@ -53,6 +54,7 @@ interface Props {
 export default function IntegrationCard({
   provider,
   integration,
+  workspacePlan = 'free',
   connecting,
   disconnecting,
   onConnect,
@@ -63,7 +65,8 @@ export default function IntegrationCard({
 
   const isConnected = integration?.status === 'active';
   const isError = integration?.status === 'error';
-  const isLocked = Boolean(meta.planRequired);
+  // Only lock if the integration requires Pro AND the workspace is still on Free plan
+  const isLocked = Boolean(meta.planRequired) && workspacePlan === 'free';
 
   return (
     <div

@@ -18,11 +18,18 @@ export default function IntegrationsClient() {
   const [connecting, setConnecting] = useState<string | null>(null);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [workspacePlan, setWorkspacePlan] = useState<'free' | 'pro' | 'team'>('free');
 
   const load = useCallback(async () => {
     setLoading(true);
-    const result = await integrationsApi.list();
-    if (!result.error) setIntegrations(result.data ?? []);
+    const [intResult, settingsResult] = await Promise.all([
+      integrationsApi.list(),
+      fetch('/api/settings/workspace').then(r => r.json()).catch(() => null),
+    ]);
+    if (!intResult.error) setIntegrations(intResult.data ?? []);
+    if (settingsResult?.data?.workspace?.plan) {
+      setWorkspacePlan(settingsResult.data.workspace.plan as 'free' | 'pro' | 'team');
+    }
     setLoading(false);
   }, []);
 
@@ -120,6 +127,7 @@ export default function IntegrationsClient() {
               key={provider}
               provider={provider}
               integration={getIntegration(provider)}
+              workspacePlan={workspacePlan}
               connecting={connecting === provider}
               disconnecting={disconnecting === provider}
               onConnect={() => handleConnect(provider)}

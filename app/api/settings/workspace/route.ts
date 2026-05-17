@@ -10,6 +10,48 @@ function getService(): any {
   );
 }
 
+// ── GET /api/settings/workspace — fetch workspace info including plan ─────────
+export async function GET() {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const service = getService();
+
+  const { data: membership } = await service
+    .from('memberships')
+    .select('workspace_id, role')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  if (!membership?.workspace_id) {
+    return NextResponse.json({ error: 'No workspace found' }, { status: 404 });
+  }
+
+  const { data: workspace, error } = await service
+    .from('workspaces')
+    .select('id, name, plan, stripe_subscription_status, plan_period_end')
+    .eq('id', membership.workspace_id)
+    .maybeSingle();
+
+  if (error || !workspace) {
+    return NextResponse.json({ error: 'Failed to fetch workspace' }, { status: 500 });
+  }
+
+  return NextResponse.json({
+    data: {
+      workspace: {
+        id: workspace.id,
+        name: workspace.name,
+        plan: workspace.plan,
+        stripe_subscription_status: workspace.stripe_subscription_status,
+        plan_period_end: workspace.plan_period_end,
+      },
+      role: membership.role,
+    },
+  });
+}
+
 // ── PATCH /api/settings/workspace — update workspace name ───────────────────
 export async function PATCH(request: NextRequest) {
   const supabase = await createClient();
