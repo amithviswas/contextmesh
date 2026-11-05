@@ -41,7 +41,7 @@ export default function UpgradePrompt({ reason, feature: _feature, cta, currentP
     <div style={{
       padding: '14px 16px',
       borderRadius: '10px',
-      background: 'linear-gradient(135deg, rgba(110,64,201,0.08) 0%, rgba(0,212,180,0.06) 100%)',
+      background: 'linear-gradient(135deg, rgba(110,64,201,0.08) 0%, rgba(108,92,231,0.06) 100%)',
       border: '1px solid rgba(110,64,201,0.2)',
       display: 'flex',
       alignItems: 'center',
@@ -62,8 +62,8 @@ export default function UpgradePrompt({ reason, feature: _feature, cta, currentP
           onClick={handleUpgrade}
           disabled={loading}
           style={{
-            padding: '6px 14px', borderRadius: '7px', border: 'none', cursor: 'pointer',
-            background: '#6e40c9', color: '#fff', fontSize: '12px', fontWeight: 600,
+            padding: '7px 14px', borderRadius: '9px', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer',
+            background: 'var(--gradient-primary)', color: '#fff', fontSize: '12px', fontWeight: 600,
             opacity: loading ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: '4px',
           }}
         >

@@ -32,7 +32,7 @@ export default function CookiesPage() {
               <div key={cookie.name} style={{ padding: '14px 16px', borderBottom: i < arr.length - 1 ? '1px solid var(--bg-border)' : 'none', display: 'grid', gridTemplateColumns: '1fr 2fr auto auto', gap: '12px', alignItems: 'center' }}>
                 <code style={{ fontSize: '11px', color: 'var(--accent)', fontFamily: 'var(--font-mono)', wordBreak: 'break-all' }}>{cookie.name}</code>
                 <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{cookie.purpose}</p>
-                <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', background: cookie.type === 'Essential' ? 'rgba(0,212,180,0.08)' : 'var(--bg-elevated)', color: cookie.type === 'Essential' ? 'var(--accent)' : 'var(--text-tertiary)', border: '1px solid var(--bg-border)', whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)' }}>{cookie.type}</span>
+                <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', background: cookie.type === 'Essential' ? 'rgba(108,92,231,0.08)' : 'var(--bg-elevated)', color: cookie.type === 'Essential' ? 'var(--accent)' : 'var(--text-tertiary)', border: '1px solid var(--bg-border)', whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)' }}>{cookie.type}</span>
                 <span style={{ fontSize: '11px', color: cookie.canOptOut ? '#FBBF24' : 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>{cookie.canOptOut ? 'Optional' : 'Required'}</span>
               </div>
             ))}

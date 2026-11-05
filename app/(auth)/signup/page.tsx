@@ -74,7 +74,7 @@ export default function SignupPage() {
   if (status === 'sent') {
     return (
       <div className="w-full max-w-[420px] page-enter">
-        <div className="card p-8 text-center">
+        <div className="card gradient-border p-8 text-center backdrop-blur-xl">
           <div
             className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5"
             style={{ background: 'var(--color-accent-subtle)', border: '1px solid var(--color-accent-primary)' }}
@@ -85,7 +85,7 @@ export default function SignupPage() {
             </svg>
           </div>
           <h1
-            className="text-[22px] font-[var(--font-display)] font-700 mb-2"
+            className="text-[22px] font-semibold tracking-[-0.035em] mb-2"
             style={{ color: 'var(--color-text-primary)' }}
           >
             Check your email
@@ -111,7 +111,7 @@ export default function SignupPage() {
     <div className="w-full max-w-[420px] page-enter">
       <div className="mb-8 text-center">
         <h1
-          className="text-[32px] font-[var(--font-display)] font-700 mb-2"
+          className="text-[32px] font-semibold tracking-[-0.035em] mb-2"
           style={{ color: 'var(--color-text-primary)', letterSpacing: '-0.03em' }}
         >
           Create your account
@@ -121,7 +121,7 @@ export default function SignupPage() {
         </p>
       </div>
 
-      <div className="card p-6 space-y-5">
+      <div className="card gradient-border p-6 sm:p-8 space-y-5 backdrop-blur-xl">
         {/* GitHub OAuth */}
         <Button
           id="github-signup-btn"
@@ -166,7 +166,7 @@ export default function SignupPage() {
 
           {serverError && (
             <div
-              className="rounded-[8px] p-3 text-[13px]"
+              className="rounded-[10px] p-3 text-[13px]"
               style={{
                 background: 'rgba(248, 113, 113, 0.08)',
                 border: '1px solid rgba(248, 113, 113, 0.2)',

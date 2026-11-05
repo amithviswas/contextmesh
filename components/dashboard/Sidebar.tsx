@@ -48,7 +48,7 @@ export default function Sidebar({ userEmail, workspaceName }: Props) {
             className={`nav-link${active ? ' active' : ''}`}
             onClick={() => setOpen(false)}
           >
-            <Icon size={15} strokeWidth={active ? 2 : 1.75} />
+            <Icon size={16} strokeWidth={active ? 2 : 1.75} />
             <span>{label}</span>
           </Link>
         );
@@ -71,19 +71,20 @@ export default function Sidebar({ userEmail, workspaceName }: Props) {
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            padding: '8px 10px',
-            borderRadius: '8px',
-            background: 'var(--bg-elevated)',
+            padding: '9px 10px',
+            borderRadius: '12px',
+            background: 'rgba(255,255,255,0.03)',
             border: '1px solid var(--bg-border)',
             cursor: 'pointer',
             textAlign: 'left',
           }}
         >
           <div style={{
-            width: '24px', height: '24px', borderRadius: '6px', flexShrink: 0,
+            width: '28px', height: '28px', borderRadius: '8px', flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'var(--accent-subtle)', border: '1px solid var(--accent-border)',
-            fontSize: '11px', fontWeight: 700, color: 'var(--accent)',
+            background: 'var(--gradient-primary)', border: '1px solid rgba(255,255,255,0.15)',
+            boxShadow: '0 4px 14px -4px rgba(108,92,231,0.8)',
+            fontSize: '12px', fontWeight: 700, color: '#fff',
             fontFamily: 'var(--font-display)',
           }}>
             {wInitial}
@@ -97,6 +98,7 @@ export default function Sidebar({ userEmail, workspaceName }: Props) {
 
       {/* Navigation */}
       <nav className="sidebar-nav" aria-label="Main navigation">
+        <p className="sidebar-section-label">Workspace</p>
         <NavLinks />
       </nav>
 
@@ -104,10 +106,10 @@ export default function Sidebar({ userEmail, workspaceName }: Props) {
       <div className="sidebar-footer">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', marginBottom: '4px' }}>
           <div style={{
-            width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
+            width: '30px', height: '30px', borderRadius: '50%', flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'var(--bg-elevated)', border: '1px solid var(--bg-border)',
-            fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)',
+            background: 'linear-gradient(135deg, rgba(34,211,238,0.25), rgba(108,92,231,0.35))', border: '1px solid rgba(255,255,255,0.12)',
+            fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)',
           }}>
             {initial}
           </div>
@@ -157,8 +159,8 @@ export default function Sidebar({ userEmail, workspaceName }: Props) {
             onClick={() => setOpen(false)}
             style={{
               position: 'fixed', inset: 0, zIndex: 39,
-              background: 'rgba(0,0,0,0.7)',
-              backdropFilter: 'blur(2px)',
+              background: 'rgba(5,6,14,0.7)',
+              backdropFilter: 'blur(4px)',
             }}
           />
           <aside
@@ -166,6 +168,7 @@ export default function Sidebar({ userEmail, workspaceName }: Props) {
               position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 50,
               width: '280px',
               background: 'var(--bg-secondary)',
+              boxShadow: '24px 0 60px -20px rgba(0,0,0,0.7)',
               borderRight: '1px solid var(--bg-border)',
               display: 'flex', flexDirection: 'column',
             }}
@@ -178,8 +181,8 @@ export default function Sidebar({ userEmail, workspaceName }: Props) {
             </div>
             <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
               <div className="sidebar-workspace">
-                <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '8px', background: 'var(--bg-elevated)', border: '1px solid var(--bg-border)', cursor: 'pointer' }}>
-                  <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'var(--accent-subtle)', border: '1px solid var(--accent-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--accent)' }}>{wInitial}</div>
+                <button style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px', padding: '9px 10px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--bg-border)', cursor: 'pointer' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'var(--gradient-primary)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff' }}>{wInitial}</div>
                   <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)', flex: 1 }}>{workspaceName}</span>
                 </button>
               </div>

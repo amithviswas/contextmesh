@@ -21,7 +21,7 @@ const TYPE_EMOJI: Record<string, string> = {
 };
 
 export default function SourceCard({ source, index }: Props) {
-  const color = SOURCE_COLORS[source.source] ?? '#00D4B4';
+  const color = SOURCE_COLORS[source.source] ?? '#22D3EE';
   const snippet = source.content.slice(0, 120) + (source.content.length > 120 ? '…' : '');
   const similarity = Math.round((source.similarity ?? 0) * 100);
   const emoji = TYPE_EMOJI[source.type] ?? '📄';

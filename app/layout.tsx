@@ -1,5 +1,5 @@
-import type { Metadata } from 'next';
-import { Syne, Inter, DM_Mono } from 'next/font/google';
+import type { Metadata, Viewport } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
 import { Suspense } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -7,31 +7,26 @@ import { AnalyticsProvider } from './providers';
 import CookieBanner from '@/components/ui/CookieBanner';
 import './globals.css';
 
-const inter = Inter({
+const geist = Geist({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-geist',
   display: 'swap',
-  weight: ['400', '500', '600'],
 });
 
-const syne = Syne({
+const geistMono = Geist_Mono({
   subsets: ['latin'],
-  variable: '--font-syne',
+  variable: '--font-geist-mono',
   display: 'swap',
-  weight: ['600', '700', '800'],
-});
-
-const dmMono = DM_Mono({
-  subsets: ['latin'],
-  variable: '--font-dm-mono',
-  display: 'swap',
-  weight: ['400', '500'],
-  style: ['normal', 'italic'],
 });
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL?.startsWith('http')
   ? process.env.NEXT_PUBLIC_APP_URL
   : 'https://contextmesh.vercel.app';
+
+export const viewport: Viewport = {
+  themeColor: '#0B0D17',
+  colorScheme: 'dark',
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -72,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${syne.variable} ${dmMono.variable}`}
+      className={`${geist.variable} ${geistMono.variable}`}
     >
       <body suppressHydrationWarning>
         <Suspense>

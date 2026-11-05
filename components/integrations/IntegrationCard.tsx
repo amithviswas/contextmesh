@@ -16,7 +16,7 @@ const PROVIDERS: Record<string, ProviderMeta> = {
   github: {
     name: 'GitHub',
     icon: '⌥',
-    color: '#6e40c9',
+    color: '#A78BFA',
     description: 'Auto-ingest commits and pull requests as context items.',
   },
   slack: {

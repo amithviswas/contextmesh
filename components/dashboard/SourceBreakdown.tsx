@@ -7,9 +7,9 @@ interface SourceStat {
 }
 
 const SOURCE_COLORS: Record<string, string> = {
-  github: '#6e40c9',
+  github: '#A78BFA',
   slack: '#FBBF24',
-  manual: '#00D4B4',
+  manual: '#22D3EE',
   jira: '#0052CC',
   linear: '#5B6AD0',
 };
@@ -47,7 +47,7 @@ export default function SourceBreakdown({ stats, total }: Props) {
                 style={{
                   height: '100%',
                   width: `${percent}%`,
-                  background: SOURCE_COLORS[source] ?? '#00D4B4',
+                  background: SOURCE_COLORS[source] ?? '#22D3EE',
                   borderRadius: '3px',
                   transition: 'width 0.6s ease',
                 }}

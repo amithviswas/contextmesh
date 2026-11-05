@@ -12,8 +12,14 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* Top glow */}
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-x-0 top-0 h-[400px]"
+        className="pointer-events-none fixed inset-x-0 top-0 h-[520px]"
         style={{ background: 'var(--gradient-glow)' }}
+      />
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 line-grid" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[120px]"
+        style={{ background: 'rgba(108,92,231,0.18)' }}
       />
 
       {/* Nav */}

@@ -26,9 +26,9 @@ export default function ActivityChart({ data }: Props) {
       {/* Legend */}
       <div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
         {[
-          { label: 'GitHub', color: '#6e40c9' },
+          { label: 'GitHub', color: '#A78BFA' },
           { label: 'Slack', color: '#FBBF24' },
-          { label: 'Manual', color: '#00D4B4' },
+          { label: 'Manual', color: '#22D3EE' },
         ].map(({ label, color }) => (
           <span key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: 'var(--text-tertiary)' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: color, display: 'inline-block' }} />
@@ -59,13 +59,13 @@ export default function ActivityChart({ data }: Props) {
             ) : (
               <>
                 {day.github > 0 && (
-                  <div style={{ height: `${(day.github / maxTotal) * 80}px`, background: '#6e40c9', borderRadius: '2px 2px 0 0', minHeight: '2px' }} />
+                  <div style={{ height: `${(day.github / maxTotal) * 80}px`, background: '#A78BFA', borderRadius: '2px 2px 0 0', minHeight: '2px' }} />
                 )}
                 {day.slack > 0 && (
                   <div style={{ height: `${(day.slack / maxTotal) * 80}px`, background: '#FBBF24', minHeight: '2px' }} />
                 )}
                 {day.manual > 0 && (
-                  <div style={{ height: `${(day.manual / maxTotal) * 80}px`, background: '#00D4B4', minHeight: '2px', borderRadius: day.github === 0 && day.slack === 0 ? '2px 2px 0 0' : '0' }} />
+                  <div style={{ height: `${(day.manual / maxTotal) * 80}px`, background: '#22D3EE', minHeight: '2px', borderRadius: day.github === 0 && day.slack === 0 ? '2px 2px 0 0' : '0' }} />
                 )}
               </>
             )}

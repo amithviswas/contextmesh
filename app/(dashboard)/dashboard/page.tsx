@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
-import { Plus, ArrowRight, Zap, Users, Plug, Database } from 'lucide-react';
+import { Plus, ArrowRight, Zap, Users, Plug, Database, GitPullRequest, MessageSquare, FileText, FolderPlus, Sparkles } from 'lucide-react';
 import { formatDistanceToNow } from '@/lib/utils';
 import { SOURCE_COLORS, CONTEXT_TYPE_LABELS } from '@/types';
 import ActivityChart from '@/components/dashboard/ActivityChart';
@@ -151,9 +151,9 @@ export default async function DashboardPage() {
 
       {/* Header */}
       <div>
-        <p style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'var(--accent)', marginBottom: '10px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Overview</p>
-        <h1 style={{ fontSize: '30px', fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.025em', marginBottom: '6px' }}>
-          {greeting}, {firstName} 👋
+        <p className="eyebrow" style={{ marginBottom: '12px' }}>Overview</p>
+        <h1 style={{ fontSize: 'clamp(26px, 3.4vw, 34px)', fontFamily: 'var(--font-display)', fontWeight: 650, color: 'var(--text-primary)', letterSpacing: '-0.035em', marginBottom: '8px' }}>
+          {greeting}, <span className="text-gradient">{firstName}</span>
         </h1>
         <p style={{ fontSize: '15px', color: 'var(--text-secondary)' }}>
           {projectCount === 0
@@ -170,9 +170,9 @@ export default async function DashboardPage() {
       {/* 4 stat cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px' }} className="stats-grid">
         {[
-          { id: 'stat-context', icon: Database, value: contextCount, label: 'Context Items', sub: 'indexed', href: '/projects', color: '#00D4B4' },
+          { id: 'stat-context', icon: Database, value: contextCount, label: 'Context Items', sub: 'indexed', href: '/projects', color: '#22D3EE' },
           { id: 'stat-queries', icon: Zap, value: queryCount, label: 'AI Queries', sub: 'this month', href: '/query', color: '#A78BFA' },
-          { id: 'stat-integrations', icon: Plug, value: integrationCount, label: 'Integrations', sub: 'connected', href: '/integrations', color: '#6e40c9' },
+          { id: 'stat-integrations', icon: Plug, value: integrationCount, label: 'Integrations', sub: 'connected', href: '/integrations', color: '#34D399' },
           { id: 'stat-members', icon: Users, value: memberCount, label: 'Team Members', sub: 'in workspace', href: '/settings', color: '#FBBF24' },
         ].map(({ id, icon: Icon, value, label, sub, href, color }) => (
           <Link
@@ -180,14 +180,16 @@ export default async function DashboardPage() {
             id={id}
             href={href}
             className="card"
-            style={{ padding: '18px 20px', textDecoration: 'none', display: 'block' }}
+            style={{ padding: '20px 22px', textDecoration: 'none', display: 'block', position: 'relative', overflow: 'hidden' }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${color}18`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Icon size={15} style={{ color }} />
+            <div aria-hidden="true" style={{ position: 'absolute', top: '-40px', right: '-40px', width: '120px', height: '120px', borderRadius: '50%', background: color, opacity: 0.10, filter: 'blur(36px)', pointerEvents: 'none' }} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: `${color}1A`, border: `1px solid ${color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={16} style={{ color }} />
               </div>
+              <ArrowRight size={14} style={{ color: 'var(--text-tertiary)' }} />
             </div>
-            <p style={{ fontSize: '34px', fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1, marginBottom: '4px' }}>
+            <p style={{ fontSize: '32px', fontFamily: 'var(--font-display)', fontWeight: 650, color: 'var(--text-primary)', lineHeight: 1, marginBottom: '6px', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums' }}>
               {value}
             </p>
             <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '1px' }}>{label}</p>
@@ -211,7 +213,7 @@ export default async function DashboardPage() {
       {/* Activity feed */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-          <p style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+          <p style={{ fontSize: '11.5px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             Recent Activity
           </p>
           {recentItems.length > 0 && (
@@ -224,7 +226,7 @@ export default async function DashboardPage() {
         {recentItems.length > 0 ? (
           <div className="card" style={{ overflow: 'hidden' }}>
             {recentItems.slice(0, 10).map((item, i) => {
-              const srcColor = SOURCE_COLORS[item.source as keyof typeof SOURCE_COLORS] ?? '#8A8A9A';
+              const srcColor = SOURCE_COLORS[item.source as keyof typeof SOURCE_COLORS] ?? '#8B90B5';
               return (
                 <Link
                   key={item.id}
@@ -233,13 +235,13 @@ export default async function DashboardPage() {
                   className="recent-activity-link"
                   style={{
                     display: 'flex', alignItems: 'center', gap: '12px',
-                    padding: '11px 20px',
+                    padding: '13px 20px',
                     borderBottom: i < Math.min(recentItems.length, 10) - 1 ? '1px solid var(--bg-border)' : 'none',
                     textDecoration: 'none',
                   }}
                 >
-                  <div style={{ width: '28px', height: '28px', borderRadius: '7px', background: `${srcColor}18`, border: `1px solid ${srcColor}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '12px' }}>
-                    {item.source === 'github' ? '⚡' : item.source === 'slack' ? '💬' : '📝'}
+                  <div style={{ width: '30px', height: '30px', borderRadius: '9px', background: `${srcColor}1A`, border: `1px solid ${srcColor}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: srcColor }}>
+                    {item.source === 'github' ? <GitPullRequest size={14} /> : item.source === 'slack' ? <MessageSquare size={14} /> : <FileText size={14} />}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -259,13 +261,13 @@ export default async function DashboardPage() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {[
-              { href: '/projects', emoji: '📁', title: 'Create a project', desc: 'Group your context by team or codebase' },
-              { href: '/integrations', emoji: '🔌', title: 'Connect GitHub or Slack', desc: 'Auto-sync context from your tools' },
-              { href: '/query', emoji: '🤖', title: 'Ask ContextMesh AI', desc: 'Get answers from your project context instantly' },
+              { href: '/projects', icon: FolderPlus, title: 'Create a project', desc: 'Group your context by team or codebase' },
+              { href: '/integrations', icon: Plug, title: 'Connect GitHub or Slack', desc: 'Auto-sync context from your tools' },
+              { href: '/query', icon: Sparkles, title: 'Ask ContextMesh AI', desc: 'Get answers from your project context instantly' },
             ].map((action) => (
-              <Link key={action.href} href={action.href} className="card" style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 18px', textDecoration: 'none' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '9px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--accent-subtle)', border: '1px solid var(--accent-border)', fontSize: '16px' }}>
-                  {action.emoji}
+              <Link key={action.href} href={action.href} className="card" style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 18px', textDecoration: 'none' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '11px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--accent-subtle)', border: '1px solid var(--accent-border)', color: 'var(--accent)' }}>
+                  <action.icon size={18} strokeWidth={1.75} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '2px' }}>{action.title}</p>

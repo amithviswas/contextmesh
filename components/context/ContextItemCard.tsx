@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function ContextItemCard({ item, projectId, onDelete }: Props) {
-  const srcColor = SOURCE_COLORS[item.source] ?? '#8A8A9A';
+  const srcColor = SOURCE_COLORS[item.source] ?? '#8B90B5';
 
   return (
     <div

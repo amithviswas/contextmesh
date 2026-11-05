@@ -20,11 +20,11 @@ export default function VerifyPage() {
 
   return (
     <div className="w-full max-w-[420px] page-enter">
-      <div className="card p-8 text-center">
-        <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: 'var(--color-accent-subtle)', border: '1px solid rgba(0, 212, 180, 0.3)' }}>
+      <div className="card gradient-border p-8 text-center backdrop-blur-xl">
+        <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: 'var(--color-accent-subtle)', border: '1px solid rgba(108, 92, 231, 0.3)' }}>
           <Mail size={24} color="var(--color-accent-primary)" />
         </div>
-        <h1 className="text-[24px] font-[var(--font-display)] font-700 mb-3" style={{ color: 'var(--color-text-primary)', letterSpacing: '-0.02em' }}>
+        <h1 className="text-[24px] font-semibold tracking-[-0.035em] mb-3" style={{ color: 'var(--color-text-primary)', letterSpacing: '-0.02em' }}>
           Check your email
         </h1>
         <p className="text-[14px] mb-6" style={{ color: 'var(--color-text-secondary)', lineHeight: '1.6' }}>
@@ -32,7 +32,7 @@ export default function VerifyPage() {
         </p>
 
         {resent ? (
-          <div className="rounded-[8px] p-3 text-[13px] mb-5" style={{ background: 'var(--color-accent-subtle)', border: '1px solid rgba(0, 212, 180, 0.2)', color: 'var(--color-accent-primary)' }}>
+          <div className="rounded-[8px] p-3 text-[13px] mb-5" style={{ background: 'var(--color-accent-subtle)', border: '1px solid rgba(167, 139, 250, 0.3)', color: 'var(--color-accent-primary)' }}>
             Verification email resent — check your inbox
           </div>
         ) : (

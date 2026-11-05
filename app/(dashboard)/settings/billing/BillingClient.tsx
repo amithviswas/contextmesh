@@ -115,7 +115,7 @@ export default function BillingClient({ workspace, myRole, usage }: Props) {
           </div>
           <span style={{
             padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, fontFamily: 'var(--font-mono)',
-            background: isPaid ? 'rgba(0,212,180,0.1)' : 'var(--bg-elevated)',
+            background: isPaid ? 'rgba(108,92,231,0.1)' : 'var(--bg-elevated)',
             color: isPaid ? 'var(--accent)' : 'var(--text-tertiary)',
             border: `1px solid ${isPaid ? 'var(--accent-border)' : 'var(--bg-border)'}`,
             textTransform: 'uppercase',

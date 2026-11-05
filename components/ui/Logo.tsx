@@ -1,3 +1,5 @@
+import { useId } from 'react';
+
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
   showWordmark?: boolean;
@@ -5,16 +7,17 @@ interface LogoProps {
 }
 
 const sizes = {
-  sm: { icon: 20, fontSize: '15px' },
-  md: { icon: 24, fontSize: '18px' },
-  lg: { icon: 32, fontSize: '24px' },
+  sm: { icon: 22, fontSize: '16px' },
+  md: { icon: 26, fontSize: '19px' },
+  lg: { icon: 34, fontSize: '25px' },
 };
 
 export default function Logo({ size = 'md', showWordmark = true, style }: LogoProps) {
   const { icon, fontSize } = sizes[size];
+  const gid = `cm-logo-${useId().replace(/:/g, '')}`;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', ...style }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '9px', ...style }}>
       {/* Mesh icon */}
       <svg
         width={icon}
@@ -23,34 +26,55 @@ export default function Logo({ size = 'md', showWordmark = true, style }: LogoPr
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
-        style={{ flexShrink: 0 }}
+        style={{ flexShrink: 0, filter: 'drop-shadow(0 0 6px rgba(108,92,231,0.55))' }}
       >
-        <line x1="4" y1="4" x2="12" y2="12" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="20" y1="4" x2="12" y2="12" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="4" y1="20" x2="12" y2="12" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="20" y1="20" x2="12" y2="12" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" />
-        <line x1="4" y1="4" x2="20" y2="4" stroke="var(--accent)" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.4" />
-        <line x1="4" y1="20" x2="20" y2="20" stroke="var(--accent)" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.4" />
-        <circle cx="4" cy="4" r="2" fill="var(--accent)" />
-        <circle cx="20" cy="4" r="2" fill="var(--accent)" />
-        <circle cx="4" cy="20" r="2" fill="var(--accent)" />
-        <circle cx="20" cy="20" r="2" fill="var(--accent)" />
-        <circle cx="12" cy="12" r="3" fill="var(--accent)" />
-        <circle cx="12" cy="12" r="1.5" fill="#0A0A0F" />
+        <defs>
+          <linearGradient id={gid} x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#A78BFA" />
+            <stop offset="0.55" stopColor="#6C5CE7" />
+            <stop offset="1" stopColor="#22D3EE" />
+          </linearGradient>
+        </defs>
+        <g stroke={`url(#${gid})`} strokeLinecap="round">
+          <line x1="4" y1="4" x2="12" y2="12" strokeWidth="1.6" />
+          <line x1="20" y1="4" x2="12" y2="12" strokeWidth="1.6" />
+          <line x1="4" y1="20" x2="12" y2="12" strokeWidth="1.6" />
+          <line x1="20" y1="20" x2="12" y2="12" strokeWidth="1.6" />
+          <line x1="4" y1="4" x2="20" y2="4" strokeWidth="1" strokeOpacity="0.45" />
+          <line x1="4" y1="20" x2="20" y2="20" strokeWidth="1" strokeOpacity="0.45" />
+          <line x1="4" y1="4" x2="4" y2="20" strokeWidth="1" strokeOpacity="0.25" />
+          <line x1="20" y1="4" x2="20" y2="20" strokeWidth="1" strokeOpacity="0.25" />
+        </g>
+        <circle cx="4" cy="4" r="2" fill="#A78BFA" />
+        <circle cx="20" cy="4" r="2" fill="#8B6CF6" />
+        <circle cx="4" cy="20" r="2" fill="#6C5CE7" />
+        <circle cx="20" cy="20" r="2" fill="#22D3EE" />
+        <circle cx="12" cy="12" r="3.2" fill={`url(#${gid})`} />
+        <circle cx="12" cy="12" r="1.4" fill="#0B0D17" />
       </svg>
 
       {showWordmark && (
         <span
           style={{
             fontSize,
-            fontFamily: 'Syne, Inter, sans-serif',
-            fontWeight: 700,
-            letterSpacing: '-0.03em',
+            fontFamily: 'var(--font-display)',
+            fontWeight: 650,
+            letterSpacing: '-0.035em',
             lineHeight: 1,
             color: 'var(--text-primary)',
           }}
         >
-          Context<span style={{ color: 'var(--accent)' }}>Mesh</span>
+          Context
+          <span
+            style={{
+              background: 'linear-gradient(110deg, #C4B5FD 0%, #A78BFA 45%, #22D3EE 100%)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              color: 'transparent',
+            }}
+          >
+            Mesh
+          </span>
         </span>
       )}
     </div>

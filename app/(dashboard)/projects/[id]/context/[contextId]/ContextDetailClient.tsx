@@ -16,7 +16,7 @@ interface Props {
 export default function ContextDetailClient({ item, projectId }: Props) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
-  const srcColor = SOURCE_COLORS[item.source] ?? '#8A8A9A';
+  const srcColor = SOURCE_COLORS[item.source] ?? '#8B90B5';
 
   async function handleDelete() {
     if (!confirm('Delete this context item permanently?')) return;

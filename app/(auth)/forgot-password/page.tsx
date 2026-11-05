@@ -37,15 +37,15 @@ export default function ForgotPasswordPage() {
   if (sent) {
     return (
       <div className="w-full max-w-[420px] page-enter">
-        <div className="card p-8 text-center">
+        <div className="card gradient-border p-8 text-center backdrop-blur-xl">
           <div
             className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5"
-            style={{ background: 'var(--color-accent-subtle)', border: '1px solid rgba(0, 212, 180, 0.3)' }}
+            style={{ background: 'var(--color-accent-subtle)', border: '1px solid rgba(108, 92, 231, 0.3)' }}
           >
             <Mail size={20} color="var(--color-accent-primary)" />
           </div>
           <h1
-            className="text-[22px] font-[var(--font-display)] font-700 mb-2"
+            className="text-[22px] font-semibold tracking-[-0.035em] mb-2"
             style={{ color: 'var(--color-text-primary)' }}
           >
             Check your inbox
@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
     <div className="w-full max-w-[420px] page-enter">
       <div className="mb-8 text-center">
         <h1
-          className="text-[32px] font-[var(--font-display)] font-700 mb-2"
+          className="text-[32px] font-semibold tracking-[-0.035em] mb-2"
           style={{ color: 'var(--color-text-primary)', letterSpacing: '-0.03em' }}
         >
           Reset password
@@ -87,7 +87,7 @@ export default function ForgotPasswordPage() {
         </p>
       </div>
 
-      <div className="card p-6 space-y-5">
+      <div className="card gradient-border p-6 sm:p-8 space-y-5 backdrop-blur-xl">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           <Input
             id="forgot-email"

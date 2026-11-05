@@ -101,7 +101,7 @@ export default function PricingPage() {
                 padding: '28px',
                 position: 'relative',
                 border: plan.featured ? '1px solid var(--accent-border)' : '1px solid var(--bg-border)',
-                background: plan.featured ? 'linear-gradient(135deg, var(--bg-secondary) 0%, rgba(0,212,180,0.04) 100%)' : undefined,
+                background: plan.featured ? 'linear-gradient(135deg, var(--bg-secondary) 0%, rgba(108,92,231,0.04) 100%)' : undefined,
               }}
             >
               {plan.featured && (

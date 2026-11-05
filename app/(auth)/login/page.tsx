@@ -57,7 +57,7 @@ export default function LoginPage() {
     <div className="w-full max-w-[420px] page-enter">
       <div className="mb-8 text-center">
         <h1
-          className="text-[32px] font-[var(--font-display)] font-700 mb-2"
+          className="text-[32px] font-semibold tracking-[-0.035em] mb-2"
           style={{ color: 'var(--color-text-primary)', letterSpacing: '-0.03em' }}
         >
           Welcome back
@@ -67,7 +67,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <div className="card p-6 space-y-5">
+      <div className="card gradient-border p-6 sm:p-8 space-y-5 backdrop-blur-xl">
         {/* GitHub OAuth */}
         <Button
           id="github-login-btn"
@@ -126,16 +126,16 @@ export default function LoginPage() {
               placeholder="••••••••"
               autoComplete="current-password"
               className={[
-                'h-10 w-full px-3',
-                'bg-[var(--color-bg-elevated)]',
-                'border border-[var(--color-bg-border)]',
-                'rounded-[8px]',
+                'h-[42px] w-full px-3.5',
+                'bg-white/[0.03]',
+                'border border-white/[0.14] hover:border-white/[0.22]',
+                'rounded-[10px]',
                 'text-[15px] text-[var(--color-text-primary)]',
                 'placeholder:text-[var(--color-text-tertiary)]',
                 'outline-none',
                 'transition-colors duration-150',
                 'focus:border-[var(--color-accent-primary)]',
-                'focus:ring-2 focus:ring-[var(--color-accent-primary)]/20',
+                'focus:ring-[3px] focus:ring-[#6C5CE7]/30 focus:bg-[rgba(108,92,231,0.06)]',
                 errors.password ? 'border-[var(--color-error)]' : '',
               ].join(' ')}
               {...register('password')}
@@ -149,7 +149,7 @@ export default function LoginPage() {
 
           {serverError && (
             <div
-              className="rounded-[8px] p-3 text-[13px]"
+              className="rounded-[10px] p-3 text-[13px]"
               style={{
                 background: 'rgba(248, 113, 113, 0.08)',
                 border: '1px solid rgba(248, 113, 113, 0.2)',

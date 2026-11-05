@@ -56,7 +56,7 @@ export default function CookieBanner() {
         </button>
         <button
           onClick={accept}
-          style={{ padding: '6px 14px', borderRadius: '7px', border: 'none', background: 'var(--accent)', color: '#0A0A0F', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
+          style={{ padding: '6px 14px', borderRadius: '7px', border: 'none', background: 'var(--accent)', color: '#0B0D17', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}
         >
           Accept
         </button>

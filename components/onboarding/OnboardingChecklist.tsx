@@ -38,7 +38,7 @@ export default function OnboardingChecklist({ completedSteps, onDismiss, onStepC
   }
 
   return (
-    <div className="card" style={{ padding: '20px 22px', position: 'relative', background: 'linear-gradient(135deg, var(--bg-secondary) 0%, rgba(0,212,180,0.04) 100%)' }}>
+    <div className="card" style={{ padding: '20px 22px', position: 'relative', background: 'linear-gradient(135deg, var(--bg-secondary) 0%, rgba(108,92,231,0.04) 100%)' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
         <div>
@@ -62,7 +62,7 @@ export default function OnboardingChecklist({ completedSteps, onDismiss, onStepC
 
       {/* Progress bar */}
       <div style={{ height: '3px', borderRadius: '2px', background: 'var(--bg-border)', marginBottom: '16px', overflow: 'hidden' }}>
-        <div style={{ height: '100%', width: `${(doneCount / STEPS.length) * 100}%`, background: 'var(--accent)', borderRadius: '2px', transition: 'width 0.4s ease' }} />
+        <div style={{ height: '100%', width: `${(doneCount / STEPS.length) * 100}%`, background: 'linear-gradient(90deg, #6C5CE7, #A78BFA 60%, #22D3EE)', borderRadius: '2px', transition: 'width 0.4s ease', boxShadow: '0 0 12px rgba(167,139,250,0.6)' }} />
       </div>
 
       {/* Steps */}

@@ -130,8 +130,8 @@ export const SOURCE_LABELS: Record<ContextItem['source'], string> = {
 };
 
 export const SOURCE_COLORS: Record<ContextItem['source'], string> = {
-  manual:  '#00D4B4',
-  github:  '#6e40c9',
+  manual:  '#22D3EE',
+  github:  '#A78BFA',
   slack:   '#E01E5A',
   jira:    '#0052CC',
   linear:  '#5E6AD2',

@@ -36,11 +36,11 @@ export default function ResetPasswordPage() {
   if (success) {
     return (
       <div className="w-full max-w-[420px] page-enter">
-        <div className="card p-8 text-center">
+        <div className="card gradient-border p-8 text-center backdrop-blur-xl">
           <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-5" style={{ background: 'rgba(74, 222, 128, 0.1)', border: '1px solid rgba(74, 222, 128, 0.3)' }}>
             <CheckCircle size={22} color="var(--color-success)" />
           </div>
-          <h1 className="text-[22px] font-[var(--font-display)] font-700 mb-2" style={{ color: 'var(--color-text-primary)' }}>Password updated</h1>
+          <h1 className="text-[22px] font-semibold tracking-[-0.035em] mb-2" style={{ color: 'var(--color-text-primary)' }}>Password updated</h1>
           <p className="text-[14px]" style={{ color: 'var(--color-text-secondary)' }}>Redirecting you to sign in…</p>
         </div>
       </div>
@@ -50,15 +50,15 @@ export default function ResetPasswordPage() {
   return (
     <div className="w-full max-w-[420px] page-enter">
       <div className="mb-8 text-center">
-        <h1 className="text-[32px] font-[var(--font-display)] font-700 mb-2" style={{ color: 'var(--color-text-primary)', letterSpacing: '-0.03em' }}>New password</h1>
+        <h1 className="text-[32px] font-semibold tracking-[-0.035em] mb-2" style={{ color: 'var(--color-text-primary)', letterSpacing: '-0.03em' }}>New password</h1>
         <p className="text-[15px]" style={{ color: 'var(--color-text-secondary)' }}>Choose a strong password for your account</p>
       </div>
-      <div className="card p-6 space-y-5">
+      <div className="card gradient-border p-6 sm:p-8 space-y-5 backdrop-blur-xl">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
           <Input id="reset-password" label="New password" type="password" placeholder="At least 8 characters" autoComplete="new-password" error={errors.password?.message} {...register('password')} />
           <Input id="reset-confirm" label="Confirm password" type="password" placeholder="Repeat your password" autoComplete="new-password" error={errors.confirm?.message} {...register('confirm')} />
           {serverError && (
-            <div className="rounded-[8px] p-3 text-[13px]" style={{ background: 'rgba(248, 113, 113, 0.08)', border: '1px solid rgba(248, 113, 113, 0.2)', color: 'var(--color-error)' }}>
+            <div className="rounded-[10px] p-3 text-[13px]" style={{ background: 'rgba(248, 113, 113, 0.08)', border: '1px solid rgba(248, 113, 113, 0.2)', color: 'var(--color-error)' }}>
               {serverError}
             </div>
           )}
