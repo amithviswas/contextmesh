@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="public/logo.svg" alt="ContextMesh Logo" width="64" height="64" />
-
 # ContextMesh
 
 **The shared memory layer for engineering teams.**
@@ -48,8 +46,8 @@ Think of it as **long-term memory for your team's codebase**.
 |------------|--------|
 | **GitHub** | Connect repos — auto-ingest commits and PRs as context items. |
 | **Slack** | Capture decisions and blockers from team conversations. |
-| **Jira** | Sync issues, epics, and sprint data *(Pro plan)* |
-| **Linear** | Sync issues and project cycles *(Pro plan)* |
+| **Jira** | Planned: shown in the integrations UI, not yet implemented |
+| **Linear** | Planned: shown in the integrations UI, not yet implemented |
 
 ### ✅ Security & Reliability
 - **Row Level Security (RLS)** — every database query is scoped to the authenticated user's workspace
@@ -81,11 +79,10 @@ Think of it as **long-term memory for your team's codebase**.
 | **Auth** | Supabase Auth (Email + GitHub OAuth) |
 | **Database** | Supabase PostgreSQL + pgvector |
 | **AI** | [Groq](https://groq.com/) — Llama 3.3 70B (free tier) |
-| **Embeddings** | Deterministic hash embeddings (no cold start, no API cost) |
+| **Embeddings** | HuggingFace `all-MiniLM-L6-v2` (384-dim) when `HUGGINGFACE_API_KEY` is set, otherwise a deterministic hash-based fallback |
 | **Payments** | Stripe (Test mode) |
 | **Email** | Resend (SMTP + transactional) |
 | **Analytics** | PostHog + Vercel Analytics + Speed Insights |
-| **Error Tracking** | Sentry |
 | **State** | Zustand + TanStack Query |
 | **Deployment** | Vercel |
 
@@ -101,16 +98,12 @@ Think of it as **long-term memory for your team's codebase**.
 ### 1. Clone & Install
 ```bash
 git clone https://github.com/amithviswas/contextmesh.git
-cd contextmesh/contextmesh
+cd contextmesh
 npm install
 ```
 
 ### 2. Set Up Environment Variables
-```bash
-cp .env.example .env.local
-```
-
-Edit `.env.local` with your values:
+Create a `.env.local` file in the project root with your values (all `.env*` files are git-ignored):
 
 ```env
 # ── Supabase ──────────────────────────────────────────────
@@ -121,12 +114,13 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key   # Never expose to client
 # ── App ───────────────────────────────────────────────────
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# ── GitHub OAuth ──────────────────────────────────────────
-GITHUB_CLIENT_ID=your-github-oauth-client-id
-GITHUB_CLIENT_SECRET=your-github-oauth-secret
+# GitHub login (OAuth) is configured in Supabase Auth → Providers, not here
 
 # ── AI (Groq — Free) ──────────────────────────────────────
 GROQ_API_KEY=your-groq-api-key
+
+# ── Embeddings (optional, improves semantic search) ───────
+HUGGINGFACE_API_KEY=
 
 # ── Payments (Stripe Test Mode) ───────────────────────────
 STRIPE_SECRET_KEY=sk_test_...
@@ -136,7 +130,8 @@ STRIPE_PRO_PRICE_ID=price_...
 STRIPE_TEAM_PRICE_ID=price_...
 
 # ── Email (Resend) ────────────────────────────────────────
-# Configure in Supabase Auth → SMTP settings, not here directly
+# Auth emails: configure Resend in Supabase Auth → SMTP settings
+RESEND_API_KEY=                                    # transactional emails (e.g. team invites)
 
 # ── Integrations ──────────────────────────────────────────
 GITHUB_INTEGRATION_CLIENT_ID=
@@ -145,6 +140,7 @@ GITHUB_WEBHOOK_SECRET=your-webhook-secret
 SLACK_CLIENT_ID=
 SLACK_CLIENT_SECRET=
 SLACK_SIGNING_SECRET=
+TOKEN_ENCRYPTION_KEY=                              # encrypts stored integration tokens
 
 # ── Analytics (Optional) ──────────────────────────────────
 NEXT_PUBLIC_POSTHOG_KEY=
@@ -202,7 +198,7 @@ contextmesh/
 ├── lib/
 │   ├── auth/                # onboarding, workspace provisioning
 │   ├── context/             # Context ingestion business logic
-│   ├── embeddings/          # Embedding generation (hash + HuggingFace)
+│   ├── embeddings/          # Embedding generation (HuggingFace + hash fallback)
 │   ├── integrations/        # GitHub & Slack client helpers
 │   ├── stripe/              # Stripe helpers
 │   ├── supabase/            # Supabase client (browser + server)
@@ -211,7 +207,6 @@ contextmesh/
 ├── supabase/
 │   └── migrations/          # SQL migration files
 ├── types/                   # Shared TypeScript types
-├── .env.example             # Environment variable template
 └── next.config.ts           # Security headers & Next.js config
 ```
 
@@ -219,7 +214,7 @@ contextmesh/
 
 ## API Reference
 
-All endpoints require authentication via Supabase session cookie.
+Endpoints require authentication via the Supabase session cookie unless noted.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -231,19 +226,25 @@ All endpoints require authentication via Supabase session cookie.
 | `GET` | `/api/context/[id]` | Get a context item |
 | `DELETE` | `/api/context/[id]` | Delete a context item |
 | `POST` | `/api/context/query` | AI query over project context |
-| `GET` | `/api/team` | List workspace members |
-| `POST` | `/api/team/invite` | Send a team invite |
-| `DELETE` | `/api/team/invite` | Revoke a team invite |
-| `GET` | `/api/team/invite/[token]` | Accept an invite |
-| `GET` | `/api/settings` | Get profile & workspace settings |
-| `PATCH` | `/api/settings` | Update profile or workspace |
+| `POST` | `/api/context/search` | Semantic search over context items |
+| `GET` | `/api/context/queries` | Query history |
+| `GET` / `PATCH` / `DELETE` | `/api/team/members` | List, update or remove workspace members |
+| `GET` / `POST` / `DELETE` | `/api/team/invite` | List, send or revoke team invites |
+| `POST` | `/api/team/invite/[token]` | Accept an invite |
+| `PATCH` | `/api/settings/profile` | Update profile |
+| `GET` / `PATCH` | `/api/settings/workspace` | Get or update workspace settings |
+| `PATCH` | `/api/onboarding` | Update onboarding progress |
 | `POST` | `/api/stripe/checkout` | Start Stripe checkout |
 | `POST` | `/api/stripe/portal` | Open Stripe billing portal |
 | `POST` | `/api/stripe/webhook` | Handle Stripe webhook events |
 | `GET` | `/api/integrations` | List connected integrations |
-| `GET` | `/api/integrations/github/callback` | GitHub OAuth callback |
+| `GET` | `/api/integrations/{github,slack}/connect` | Start integration OAuth |
+| `GET` | `/api/integrations/{github,slack}/callback` | Integration OAuth callback |
+| `POST` | `/api/integrations/{github,slack}/disconnect` | Disconnect an integration |
 | `POST` | `/api/integrations/github/webhook` | GitHub webhook handler |
 | `POST` | `/api/integrations/slack/webhook` | Slack event webhook |
+
+Webhook endpoints are authenticated by HMAC signature instead of a session.
 
 ---
 
@@ -253,9 +254,8 @@ All endpoints require authentication via Supabase session cookie.
 
 1. Push to GitHub
 2. Import the repo in [Vercel](https://vercel.com/new)
-3. Set **Root Directory** to `contextmesh`
-4. Add all environment variables from `.env.local`
-5. Deploy
+3. Add all environment variables from `.env.local`
+4. Deploy
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/amithviswas/contextmesh)
 
@@ -298,6 +298,15 @@ Contributions are welcome! Please:
 
 ---
 
+## Author
+
+**Amith Viswas Reddy**: Salesforce engineer at Accenture
+- Portfolio: [avr-portfolio-m5.netlify.app](https://avr-portfolio-m5.netlify.app)
+- LinkedIn: [linkedin.com/in/amith-viswas-reddy](https://www.linkedin.com/in/amith-viswas-reddy)
+- GitHub: [@amithviswas](https://github.com/amithviswas)
+
+---
+
 ## License
 
 Distributed under the **Apache License 2.0**. See [LICENSE](LICENSE) for more information.
@@ -316,6 +325,6 @@ Distributed under the **Apache License 2.0**. See [LICENSE](LICENSE) for more in
 ---
 
 <div align="center">
-  <p>Built with ❤️ by <a href="https://github.com/amithviswas">Amith Viswas</a></p>
+  <p>Built with ❤️ by <a href="https://github.com/amithviswas">Amith Viswas Reddy</a></p>
   <p><a href="https://contextmesh-murex.vercel.app/">contextmesh-murex.vercel.app</a></p>
 </div>
